@@ -910,24 +910,24 @@ function renderGlossarySection() {
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         ${uniqueGuides.map(guide => `
-          <div class="rounded-xl border p-6 transition-all hover:shadow-lg ${state.isDarkMode ? "bg-gray-800 border-gray-700 hover:border-blue-500/50" : "bg-white border-gray-200 hover:border-blue-300"}">
-            <h3 class="text-xl font-bold mb-3 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">
+          <div class="min-w-0 w-full rounded-xl border p-6 transition-all hover:shadow-lg flex flex-col h-full ${state.isDarkMode ? "bg-gray-800 border-gray-700 hover:border-blue-500/50" : "bg-white border-gray-200 hover:border-blue-300"}">
+            <h3 class="text-xl font-bold mb-3 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"} break-words">
               ${escapeHtml(guide.name)}
             </h3>
-            <div class="space-y-3">
+            <div class="space-y-3 flex-grow">
               <div class="flex items-start gap-2">
                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-200 text-gray-700 shrink-0">기준점</span>
-                <span class="font-mono font-medium ${state.isDarkMode ? "text-gray-300" : "text-gray-800"}">${escapeHtml(guide.basePoint)}</span>
+                <span class="font-mono font-medium ${state.isDarkMode ? "text-gray-300" : "text-gray-800"} break-words min-w-0 flex-1">${escapeHtml(guide.basePoint)}</span>
               </div>
               
               <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-red-900/20" : "bg-red-50"}">
                 <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-red-300" : "text-red-700"}">📈 수치가 높을 때</p>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}>${escapeHtml(guide.highInterpretation)}</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"} break-words">${escapeHtml(guide.highInterpretation)}</p>
               </div>
               
               <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}">
                 <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">📉 수치가 낮을 때</p>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}>${escapeHtml(guide.lowInterpretation)}</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"} break-words">${escapeHtml(guide.lowInterpretation)}</p>
               </div>
             </div>
           </div>
