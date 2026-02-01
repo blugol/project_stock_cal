@@ -9,15 +9,11 @@ const state = {
   lastUpdateDate: null,
   currentDate: new Date(),
   expandedTiers: { major: true, mid: true, small: true },
-  copiedStates: {},
   searchQuery: "",
-  keepSearchFocus: false,
-  isComposing: false,
   isContactModalOpen: false,
-  isPrivacyModalOpen: false, // 개인정보처리방침 모달 상태
 };
 
-// UI 상태 업데이트를 위한 헬퍼
+// UI 상태 업데이트를 위한 헬퍼 (리렌더링 방지용)
 const uiState = {
   copyTimeout: null
 };
@@ -285,6 +281,7 @@ async function fetchJson(path) {
   return response.json();
 }
 
+// file:// 환경에서도 자동 로드를 위해 JS 임베드 데이터만 사용합니다.
 function loadEventsFromEmbeddedData() {
   if (typeof __UPLOADED_EVENTS__ === "undefined" || !Array.isArray(__UPLOADED_EVENTS__)) {
     return null;
@@ -847,7 +844,7 @@ function renderRelatedStocks() {
           </button>
         </div>
         <div class="flex items-center gap-3">
-          <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">${escapeHtml(event.title)}</p>
+          <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}>${escapeHtml(event.title)}</p>
           <span class="px-2 py-1 rounded-full text-xs font-medium ${state.isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"}">총 ${filteredTotal}개 종목</span>
         </div>
         <div class="mt-4">
@@ -923,12 +920,12 @@ function renderGlossarySection() {
               
               <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-red-900/20" : "bg-red-50"}">
                 <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-red-300" : "text-red-700"}">📈 수치가 높을 때</p>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">${escapeHtml(guide.highInterpretation)}</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}>${escapeHtml(guide.highInterpretation)}</p>
               </div>
               
               <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}">
                 <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">📉 수치가 낮을 때</p>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">${escapeHtml(guide.lowInterpretation)}</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}>${escapeHtml(guide.lowInterpretation)}</p>
               </div>
             </div>
           </div>
@@ -1254,7 +1251,6 @@ function renderApp() {
     </div>
 
   `;
-
   
 
     if (typeof lucide !== "undefined") {
