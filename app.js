@@ -9,10 +9,7 @@ const state = {
   lastUpdateDate: null,
   currentDate: new Date(),
   expandedTiers: { major: true, mid: true, small: true },
-  copiedStates: {},
   searchQuery: "",
-  keepSearchFocus: false,
-  isComposing: false,
   isContactModalOpen: false,
   isPrivacyModalOpen: false,
   isAboutModalOpen: false,
@@ -1189,13 +1186,17 @@ function renderApp() {
               </div>
             </div>
             
-            <div class="flex items-center gap-3 shrink-0 ml-2">
-              <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
-                <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
-                  <i data-lucide="calendar" class="size-4"></i>
-                  <span>일정 캘린더</span>
-                </div>
-              </div>
+            <div class="flex items-center gap-2 shrink-0 ml-2">
+              <button
+                data-action="open-about"
+                class="hidden lg:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
+                  ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                }"
+              >
+                <i data-lucide="info" class="size-4"></i>
+                <span>사이트 소개</span>
+              </button>
               <button
                 data-action="open-contact"
                 class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
@@ -1220,6 +1221,22 @@ function renderApp() {
           </div>
         </div>
       </div>
+      
+      <!-- 상단 가이드 섹션 (SEO 및 콘텐츠 보강) -->
+      <div class="container mx-auto px-4 mt-6">
+        <div class="rounded-xl border p-5 ${state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-blue-100 shadow-sm"}">
+          <h2 class="text-lg font-bold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">
+            <i data-lucide="lightbulb" class="size-5"></i>
+            <span>오늘의 투자 인사이트</span>
+          </h2>
+          <p class="text-sm leading-relaxed ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
+            경제 지표는 주식 시장의 나침반입니다. <strong>미국 CPI, NFP(비농업 고용), 금리 결정</strong> 등 주요 이벤트를 확인하고, 
+            관련된 <strong>대장주 및 수혜주</strong>를 미리 파악하여 성공적인 투자 전략을 세우세요. 
+            아래 캘린더에서 날짜를 클릭하면 상세 데이터와 관련 종목을 확인할 수 있습니다.
+          </p>
+        </div>
+      </div>
+
       <div class="container mx-auto px-4 py-8">
         ${loadingBanner}
         ${errorBanner}
@@ -1235,7 +1252,7 @@ function renderApp() {
       </div>
       ${renderContactModal()}
       ${renderPrivacyModal()}
-      ${renderAboutModal()} <!-- 사이트 소개 모달 추가 -->
+      ${renderAboutModal()}
     </div>
   `;
 
