@@ -9,11 +9,13 @@ const state = {
   lastUpdateDate: null,
   currentDate: new Date(),
   expandedTiers: { major: true, mid: true, small: true },
-  copiedStates: {},
   searchQuery: "",
-  keepSearchFocus: false,
-  isComposing: false,
   isContactModalOpen: false,
+};
+
+// UI 상태 업데이트를 위한 헬퍼 (리렌더링 방지용)
+const uiState = {
+  copyTimeout: null
 };
 
 const indicatorGuides = {
@@ -449,11 +451,9 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        ${
-          actualValue !== null
-            ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
-            : `<p class="text-lg font-bold text-gray-400">미발표</p>`
-        }
+        ${actualValue !== null
+          ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
+          : `<p class="text-lg font-bold text-gray-400">미발표</p>`}
       </div>
     `);
   }
@@ -489,7 +489,7 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
+          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}>
                   기준: ${escapeHtml(guide.basePoint)}
                 </span>` : ""}
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
@@ -578,7 +578,6 @@ function renderCalendar() {
     0,
     ...Array.from({ length: daysInMonth }, (_, i) => eventsForDate(i + 1).length)
   );
-  // 최소 높이 조정: 이벤트 개수에 비례하지만 너무 작지 않게
   const minCellHeight = Math.max(100, 40 + maxEventsInMonth * 22);
   const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
@@ -628,11 +627,11 @@ function renderCalendar() {
   return `
     <div class="rounded-xl border shadow-lg overflow-hidden ${state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}">
       <div class="p-4 border-b ${state.isDarkMode ? "border-gray-700" : "border-gray-100"} flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 flex-shrink-0">
           <button onclick="goToPrevMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
             <i data-lucide="chevron-left" class="size-5"></i>
           </button>
-          <h2 class="font-bold text-xl ${state.isDarkMode ? "text-white" : "text-gray-900"} min-w-[140px] text-center">${year}년 ${monthNames[month]}</h2>
+          <h2 class="font-bold text-xl ${state.isDarkMode ? "text-white" : "text-gray-900"} min-w-[140px] text-center flex-shrink-0 pr-2">${year}년 ${monthNames[month]}</h2>
           <button onclick="goToNextMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
             <i data-lucide="chevron-right" class="size-5"></i>
           </button>
@@ -868,11 +867,17 @@ function renderRelatedStocks() {
               type="text"
               value="${escapeHtml(state.searchQuery)}"
               placeholder="종목명/코드/섹터 검색"
-              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400" : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"}"
+              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode
+                ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400"
+                : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+              }"
             />
             <button
               data-action="apply-search"
-              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600" : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"}"
+              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode
+                ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600"
+                : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"
+              }"
             >
               검색 적용
             </button>
@@ -1137,6 +1142,14 @@ function bindEvents() {
     }
 
     const actionButton = target.closest("[data-action]");
+    const overlay = target.closest("[data-action='close-contact-overlay']");
+    
+    if (overlay && target === overlay) {
+       state.isContactModalOpen = false;
+       renderApp();
+       return;
+    }
+
     if (!actionButton) return;
     const action = actionButton.getAttribute("data-action");
     const tier = actionButton.getAttribute("data-tier");
@@ -1145,14 +1158,15 @@ function bindEvents() {
       state.isDarkMode = !state.isDarkMode;
       localStorage.setItem("darkMode", String(state.isDarkMode));
       
-      // 즉시 UI 반영
       if (state.isDarkMode) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
       
-      renderApp();
+      requestAnimationFrame(() => {
+        renderApp();
+      });
       return;
     }
 
@@ -1176,7 +1190,8 @@ function bindEvents() {
         showToast("검색 결과가 없습니다.", "error");
         return;
       }
-      copyToClipboard(payload, "all");
+      
+      copyToClipboardWithoutRender(payload, "all", actionButton);
       return;
     }
 
@@ -1196,7 +1211,8 @@ function bindEvents() {
         const payload = hasQuery
           ? filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n")
           : formatStocksToText(category);
-        copyToClipboard(payload, tier);
+          
+        copyToClipboardWithoutRender(payload, tier, actionButton);
       }
       return;
     }
@@ -1207,7 +1223,7 @@ function bindEvents() {
       return;
     }
 
-    if (action === "close-contact" || action === "close-contact-overlay") {
+    if (action === "close-contact") {
       state.isContactModalOpen = false;
       renderApp();
       return;
@@ -1286,35 +1302,59 @@ function bindEvents() {
       applySearchFilter();
     }
   });
-
-  appRoot.addEventListener("blur", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      applySearchFilter();
-    }
-  }, true);
-
 }
 
-async function copyToClipboard(text, key) {
+async function copyToClipboardWithoutRender(text, key, buttonElement) {
   try {
+    let successful = false;
     if (navigator.clipboard && isSecureContext) {
       try {
         await navigator.clipboard.writeText(text);
-        setCopiedState(key);
-        showToast("클립보드에 복사되었습니다!", "success");
-        return;
+        successful = true;
       } catch (clipboardError) {
-        // fallback
       }
     }
-    fallbackCopy(text, key);
+    
+    if (!successful) {
+      successful = fallbackCopySilent(text);
+    }
+
+    if (successful) {
+      showToast("클립보드에 복사되었습니다!", "success");
+      
+      if (buttonElement) {
+        const originalHtml = buttonElement.innerHTML;
+        const width = buttonElement.offsetWidth;
+        buttonElement.style.width = `${width}px`; 
+        
+        const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-check size-4${key === 'all' ? '' : ' size-5'}"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 8"/></svg>`;
+        
+        if (key === 'all') {
+             buttonElement.innerHTML = `${checkIcon}<span>복사 완료</span>`;
+        } else {
+             const textDiv = buttonElement.querySelector('.text-left h3');
+             if (textDiv) textDiv.textContent = "복사 완료";
+             const iconDiv = buttonElement.querySelector('div:first-child');
+             if (iconDiv) iconDiv.innerHTML = checkIcon;
+        }
+
+        setTimeout(() => {
+          buttonElement.innerHTML = originalHtml;
+          buttonElement.style.width = '';
+          if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+          }
+        }, 2000);
+      }
+    } else {
+      throw new Error("Copy failed");
+    }
   } catch (error) {
     showToast("복사에 실패했습니다.", "error");
   }
 }
 
-function fallbackCopy(text, key) {
+function fallbackCopySilent(text) {
   try {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -1334,24 +1374,10 @@ function fallbackCopy(text, key) {
     textarea.select();
     const successful = document.execCommand("copy");
     document.body.removeChild(textarea);
-    if (successful) {
-      setCopiedState(key);
-      showToast("클립보드에 복사되었습니다!", "success");
-    } else {
-      throw new Error("Copy failed");
-    }
+    return successful;
   } catch (error) {
-    showToast("복사에 실패했습니다.", "error");
+    return false;
   }
-}
-
-function setCopiedState(key) {
-  state.copiedStates[key] = true;
-  renderApp();
-  setTimeout(() => {
-    state.copiedStates[key] = false;
-    renderApp();
-  }, 2000);
 }
 
 async function init() {
