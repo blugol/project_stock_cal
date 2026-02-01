@@ -628,11 +628,11 @@ function renderCalendar() {
     <div class="rounded-xl border shadow-lg overflow-hidden ${state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}">
       <div class="p-4 border-b ${state.isDarkMode ? "border-gray-700" : "border-gray-100"} flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-4 flex-shrink-0">
-          <button onclick="goToPrevMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
+          <button data-action="prev-month" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
             <i data-lucide="chevron-left" class="size-5"></i>
           </button>
           <h2 class="font-bold text-xl ${state.isDarkMode ? "text-white" : "text-gray-900"} min-w-[140px] text-center flex-shrink-0 pr-2">${year}년 ${monthNames[month]}</h2>
-          <button onclick="goToNextMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
+          <button data-action="next-month" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
             <i data-lucide="chevron-right" class="size-5"></i>
           </button>
         </div>
@@ -1248,16 +1248,34 @@ function renderApp() {
     const action = actionButton.getAttribute("data-action");
     const tier = actionButton.getAttribute("data-tier");
 
+    // 월 이동
+    if (action === "prev-month") {
+      const current = state.currentDate;
+      state.currentDate = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+      renderApp();
+      return;
+    }
+
+    if (action === "next-month") {
+      const current = state.currentDate;
+      state.currentDate = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+      renderApp();
+      return;
+    }
+
+    // 다크 모드 토글
     if (action === "toggle-theme") {
       state.isDarkMode = !state.isDarkMode;
       localStorage.setItem("darkMode", String(state.isDarkMode));
       
+      // UI 즉시 반영 (반응성 향상)
       if (state.isDarkMode) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
       
+      // 렌더링은 다음 프레임에 수행하여 끊김 방지
       requestAnimationFrame(() => {
         renderApp();
       });
