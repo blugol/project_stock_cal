@@ -1231,8 +1231,6 @@ function renderApp() {
 
     // 1. 이벤트 아이템 클릭 (상세 정보)
     const eventButton = target.closest("[data-event-id]");
-
-    const eventButton = target.closest("[data-event-id]");
     if (eventButton) {
       const eventId = eventButton.getAttribute("data-event-id");
       const selected = state.events.find((item) => item.id === eventId);
