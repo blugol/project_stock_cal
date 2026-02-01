@@ -449,7 +449,7 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        <p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>
+        ${actualValue !== null ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>` : `<p class="text-lg font-bold text-gray-400">미발표</p>`}
       </div>
     `);
   }
@@ -485,7 +485,7 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
+          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}>
                   기준: ${escapeHtml(guide.basePoint)}
                 </span>` : ""}
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
@@ -524,15 +524,15 @@ function renderSelectedEvent() {
                       <div class="space-y-2">
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-green-200" : "text-green-800"}">기준점:</span>
-                          <span class="font-bold ${state.isDarkMode ? "text-green-100" : "text-green-900"}">${escapeHtml(guide.basePoint)}</span>
+                          <span class="font-bold ${state.isDarkMode ? "text-green-100" : "text-green-900"}>${escapeHtml(guide.basePoint)}</span>
                         </div>
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-red-300" : "text-red-700"}">수치 높음:</span>
-                          <span class="${state.isDarkMode ? "text-red-200" : "text-red-800"}">${escapeHtml(guide.highInterpretation)}</span>
+                          <span class="${state.isDarkMode ? "text-red-200" : "text-red-800"}>${escapeHtml(guide.highInterpretation)}</span>
                         </div>
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">수치 낮음:</span>
-                          <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">${escapeHtml(guide.lowInterpretation)}</span>
+                          <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}>${escapeHtml(guide.lowInterpretation)}</span>
                         </div>
                       </div>
                     </div>` : ""}
@@ -623,7 +623,7 @@ function renderCalendar() {
   return `
     <div class="rounded-xl border-2 p-4 ${state.isDarkMode ? "bg-gray-800 border-gray-700 shadow-lg" : "bg-stone-200 border-gray-800 shadow-xl"}">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-slate-900"}">${year}년 ${monthNames[month]}</h2>
+        <h2 class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-slate-900"}>${year}년 ${monthNames[month]}</h2>
         <div class="flex gap-2">
           <button onclick="goToPrevMonth()" class="border rounded-md px-2 py-1 ${state.isDarkMode ? "border-gray-600 text-gray-200" : "border-gray-800 text-gray-700"}">
             <i data-lucide="chevron-left" class="size-4"></i>
@@ -845,7 +845,7 @@ function renderRelatedStocks() {
           </button>
         </div>
         <div class="flex items-center gap-3">
-          <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">${escapeHtml(event.title)}</p>
+          <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}>${escapeHtml(event.title)}</p>
           <span class="px-2 py-1 rounded-full text-xs font-medium ${state.isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"}">총 ${filteredTotal}개 종목</span>
         </div>
         <div class="mt-4">
@@ -1094,15 +1094,7 @@ function renderApp() {
 
                 data-action="open-contact"
 
-                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${
-
-                  state.isDarkMode
-
-                    ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-
-                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-
-                }"
+                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
 
               >
 
@@ -1116,15 +1108,7 @@ function renderApp() {
 
                 data-action="toggle-theme"
 
-                class="transition-colors border rounded-md p-2 ${
-
-                  state.isDarkMode
-
-                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
-
-                    : "bg-white hover:bg-gray-100"
-
-                }"
+                class="transition-colors border rounded-md p-2 ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400" : "bg-white hover:bg-gray-100"}"
 
                 aria-label="다크 모드 토글"
 
@@ -1475,6 +1459,42 @@ function bindEvents() {
     }
 
   });
+
+  appRoot.addEventListener("input", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.id === "stock-search-input") {
+      if (state.isComposing || target.isComposing) {
+        state.searchQuery = target.value;
+        return;
+      }
+      state.searchQuery = target.value;
+    }
+  });
+
+  appRoot.addEventListener("compositionstart", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+      state.isComposing = true;
+    }
+  });
+
+  appRoot.addEventListener("compositionend", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+      state.isComposing = false;
+      state.searchQuery = target.value;
+    }
+  });
+
+  appRoot.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.id === "stock-search-input" && event.key === "Enter") {
+      applySearchFilter();
+    }
+  });
+}
 
 async function copyToClipboard(text, key) {
   try {
