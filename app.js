@@ -9,87 +9,79 @@ const state = {
   lastUpdateDate: null,
   currentDate: new Date(),
   expandedTiers: { major: true, mid: true, small: true },
+  copiedStates: {},
   searchQuery: "",
+  keepSearchFocus: false,
+  isComposing: false,
   isContactModalOpen: false,
+  isPrivacyModalOpen: false, // 개인정보처리방침 모달 상태
 };
 
-// UI 상태 업데이트를 위한 헬퍼 (리렌더링 방지용)
+// UI 상태 업데이트를 위한 헬퍼
 const uiState = {
   copyTimeout: null
 };
 
 const indicatorGuides = {
   PMI: {
-    name: "PMI (제조업/서비스)",
+    name: "PMI (제조업/서비스 구매관리자지수)",
     basePoint: "50.0",
-    highInterpretation: "경기 확장 (호재)",
-    lowInterpretation: "경기 위축 (악재)",
+    highInterpretation: "경기 확장 국면입니다. 기업들이 투자를 늘리고 있다는 신호로 주식 시장에 호재로 작용할 수 있습니다.",
+    lowInterpretation: "경기 위축 국면입니다. 50 미만은 경기 침체 우려를 낳아 시장에 부정적인 영향을 줄 수 있습니다.",
   },
   "제조업 PMI": {
-    name: "PMI (제조업/서비스)",
+    name: "제조업 PMI",
     basePoint: "50.0",
-    highInterpretation: "경기 확장 (호재)",
-    lowInterpretation: "경기 위축 (악재)",
+    highInterpretation: "제조업 경기가 활발함을 의미하며, 수출 중심 국가의 증시에 긍정적입니다.",
+    lowInterpretation: "제조업 둔화를 의미하며, 경기 침체 시그널로 해석될 수 있습니다.",
   },
   "서비스업 PMI": {
-    name: "PMI (제조업/서비스)",
+    name: "서비스업 PMI",
     basePoint: "50.0",
-    highInterpretation: "경기 확장 (호재)",
-    lowInterpretation: "경기 위축 (악재)",
+    highInterpretation: "서비스업 경기가 확장세임을 나타냅니다.",
+    lowInterpretation: "내수 경기 침체를 의미할 수 있습니다.",
   },
   CPI: {
-    name: "CPI (소비자물가)",
-    basePoint: "2.0% (YoY)",
-    highInterpretation: "인플레이션 (금리 인상)",
-    lowInterpretation: "디플레이션/안정 (금리 인하)",
+    name: "CPI (소비자물가지수)",
+    basePoint: "2.0% (YoY 목표치)",
+    highInterpretation: "인플레이션 압력이 높습니다. 중앙은행의 금리 인상 가능성이 높아져 기술주 등 성장주에 악재가 될 수 있습니다.",
+    lowInterpretation: "물가가 안정적이거나 디플레이션 우려가 있습니다. 금리 인하 기대감으로 이어질 수 있습니다.",
   },
   소비자물가: {
-    name: "CPI (소비자물가)",
+    name: "소비자물가",
     basePoint: "2.0% (YoY)",
-    highInterpretation: "인플레이션 (금리 인상)",
-    lowInterpretation: "디플레이션/안정 (금리 인하)",
+    highInterpretation: "물가 상승 압력으로 인한 긴축 통화 정책이 예상됩니다.",
+    lowInterpretation: "물가 안정화로 완화적 통화 정책이 기대됩니다.",
   },
   비농업고용: {
-    name: "비농업고용 (NFP)",
-    basePoint: "20만 건",
-    highInterpretation: "경기 과열 (달러 강세)",
-    lowInterpretation: "경기 침체 (금리 인하 기대)",
+    name: "비농업고용 지수 (NFP)",
+    basePoint: "20만 건 (변동 가능)",
+    highInterpretation: "고용 시장이 매우 강력합니다. 경기가 좋다는 뜻이지만, 긴축 우려로 달러 강세를 유발할 수 있습니다.",
+    lowInterpretation: "고용 시장이 식어가고 있습니다. 경기 침체 우려가 생기지만, 금리 인하 기대감을 높일 수 있습니다.",
   },
   NFP: {
-    name: "비농업고용 (NFP)",
+    name: "NFP (비농업 고용)",
     basePoint: "20만 건",
-    highInterpretation: "경기 과열 (달러 강세)",
-    lowInterpretation: "경기 침체 (금리 인하 기대)",
-  },
-  고용: {
-    name: "비농업고용 (NFP)",
-    basePoint: "20만 건",
-    highInterpretation: "경기 과열 (달러 강세)",
-    lowInterpretation: "경기 침체 (금리 인하 기대)",
+    highInterpretation: "경기 과열 신호로 해석되어 금리 인하 시기가 늦춰질 수 있습니다.",
+    lowInterpretation: "경기 둔화 신호로, 연준의 완화 정책을 기대하게 만듭니다.",
   },
   실업률: {
     name: "실업률",
-    basePoint: "4.0~5.0%",
-    highInterpretation: "고용 시장 악화",
-    lowInterpretation: "완전 고용 상태",
+    basePoint: "4.0~5.0% (자연실업률)",
+    highInterpretation: "경기가 침체되고 있음을 의미합니다. 소비 위축으로 이어질 수 있습니다.",
+    lowInterpretation: "완전 고용 상태에 가깝습니다. 경제가 탄탄하지만 임금 상승발 인플레이션을 자극할 수 있습니다.",
   },
   원유재고: {
     name: "원유재고",
     basePoint: "0 (예상치 대비)",
-    highInterpretation: "공급 과잉 (유가 하락)",
-    lowInterpretation: "수요 부족/재고 감소 (유가 상승)",
+    highInterpretation: "원유 공급이 수요보다 많습니다. 유가 하락 요인이 되며 에너지 관련주에 부정적일 수 있습니다.",
+    lowInterpretation: "원유 수요가 많거나 공급이 부족합니다. 유가 상승 요인이 되며 정유주에 호재입니다.",
   },
   GDP: {
-    name: "GDP (성장률)",
-    basePoint: "2.5%",
-    highInterpretation: "성장 궤도",
-    lowInterpretation: "저성장/경기 불황",
-  },
-  성장률: {
-    name: "GDP (성장률)",
-    basePoint: "2.5%",
-    highInterpretation: "성장 궤도",
-    lowInterpretation: "저성장/경기 불황",
+    name: "GDP 성장률",
+    basePoint: "2.5% (잠재성장률)",
+    highInterpretation: "경제 성장 궤도에 있습니다. 기업 이익 증가가 기대됩니다.",
+    lowInterpretation: "저성장 또는 경기 불황(Recession) 우려가 있습니다.",
   },
 };
 
@@ -293,8 +285,6 @@ async function fetchJson(path) {
   return response.json();
 }
 
-// file:// 환경에서도 자동 로드를 위해 JS 임베드 데이터만 사용합니다.
-
 function loadEventsFromEmbeddedData() {
   if (typeof __UPLOADED_EVENTS__ === "undefined" || !Array.isArray(__UPLOADED_EVENTS__)) {
     return null;
@@ -489,7 +479,7 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}>
+          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
                   기준: ${escapeHtml(guide.basePoint)}
                 </span>` : ""}
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
@@ -894,6 +884,60 @@ function renderRelatedStocks() {
   `;
 }
 
+function renderGlossarySection() {
+  const keys = Object.keys(indicatorGuides);
+  const uniqueGuides = [];
+  const seenNames = new Set();
+
+  // 중복 이름 제거 (PMI 등)
+  for (const key of keys) {
+    const guide = indicatorGuides[key];
+    if (!seenNames.has(guide.name)) {
+      seenNames.add(guide.name);
+      uniqueGuides.push(guide);
+    }
+  }
+
+  return `
+    <div class="mt-16 mb-8">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold mb-4 ${state.isDarkMode ? "text-white" : "text-gray-900"}">
+          📊 경제지표 용어 사전
+        </h2>
+        <p class="text-lg ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
+          주식 시장에 영향을 미치는 주요 경제 지표들을 알기 쉽게 정리했습니다.
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        ${uniqueGuides.map(guide => `
+          <div class="rounded-xl border p-6 transition-all hover:shadow-lg ${state.isDarkMode ? "bg-gray-800 border-gray-700 hover:border-blue-500/50" : "bg-white border-gray-200 hover:border-blue-300"}">
+            <h3 class="text-xl font-bold mb-3 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">
+              ${escapeHtml(guide.name)}
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-start gap-2">
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-200 text-gray-700 shrink-0">기준점</span>
+                <span class="font-mono font-medium ${state.isDarkMode ? "text-gray-300" : "text-gray-800"}">${escapeHtml(guide.basePoint)}</span>
+              </div>
+              
+              <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-red-900/20" : "bg-red-50"}">
+                <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-red-300" : "text-red-700"}">📈 수치가 높을 때</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">${escapeHtml(guide.highInterpretation)}</p>
+              </div>
+              
+              <div class="p-3 rounded-lg ${state.isDarkMode ? "bg-blue-900/20" : "bg-blue-50"}">
+                <p class="text-xs font-bold mb-1 ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">📉 수치가 낮을 때</p>
+                <p class="text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">${escapeHtml(guide.lowInterpretation)}</p>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderContactModal() {
   if (!state.isContactModalOpen) return "";
 
@@ -979,10 +1023,51 @@ function renderContactModal() {
   `;
 }
 
+function renderPrivacyModal() {
+  if (!state.isPrivacyModalOpen) return "";
+
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" data-action="close-privacy-overlay">
+      <div class="w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] ${state.isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}">
+        <div class="p-6 border-b ${state.isDarkMode ? "border-gray-700" : "border-gray-200"} flex items-center justify-between">
+          <h3 class="text-xl font-bold ${state.isDarkMode ? "text-white" : "text-gray-900"}">개인정보처리방침 (Privacy Policy)</h3>
+          <button
+            data-action="close-privacy"
+            class="rounded-lg p-2 transition-colors ${state.isDarkMode ? "text-gray-400 hover:bg-gray-700 hover:text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"}"
+          >
+            <i data-lucide="x" class="size-5"></i>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto ${state.isDarkMode ? "text-gray-300" : "text-gray-700"} space-y-4 text-sm leading-relaxed">
+          <p><strong>1. 개인정보의 수집 및 이용 목적</strong><br>
+          본 사이트('Stock Calendar')는 별도의 회원가입 없이 이용 가능하며, 사용자의 개인정보를 직접 수집하거나 저장하지 않습니다. 다만, 제휴 문의 시 제공해주시는 이름, 이메일 주소는 문의 응대 목적으로만 사용됩니다.</p>
+
+          <p><strong>2. 쿠키(Cookie) 및 광고</strong><br>
+          본 사이트는 구글 애드센스(Google AdSense)를 통해 광고를 게재하고 있습니다. 이를 위해 구글 및 제3자 벤더는 쿠키(Cookie)를 사용하여 사용자의 과거 방문 기록을 바탕으로 맞춤형 광고를 제공할 수 있습니다.<br>
+          사용자는 구글 광고 설정(Ads Settings)에서 맞춤형 광고를 해제할 수 있으며, <a href="https://www.aboutads.info" target="_blank" class="underline text-blue-500">aboutads.info</a>에서 제3자 벤더의 쿠키 사용을 거부할 수 있습니다.</p>
+
+          <p><strong>3. 로그 데이터</strong><br>
+          사이트 방문 시 브라우저가 전송하는 일반적인 정보(IP 주소, 브라우저 버전, 방문 시간 등)는 서버 운영 및 보안을 위해 자동으로 기록될 수 있으나, 이는 특정 개인을 식별하는 용도로 사용되지 않습니다.</p>
+
+          <p><strong>4. 외부 링크</strong><br>
+          본 사이트는 외부 사이트로의 링크를 포함할 수 있으며, 해당 사이트의 개인정보처리방침은 본 사이트와 무관합니다.</p>
+
+          <p class="text-xs mt-4 opacity-70">시행일자: 2026년 2월 1일</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderFooter() {
   if (!state.lastUpdateDate) return "";
   return `
     <footer class="mt-12 pt-8 border-t text-center ${state.isDarkMode ? "border-gray-700" : "border-gray-800"}">
+      <div class="mb-4 flex justify-center gap-4 text-sm font-medium ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
+        <button data-action="open-privacy" class="hover:underline">개인정보처리방침</button>
+        <span>|</span>
+        <button data-action="open-contact" class="hover:underline">제휴 문의</button>
+      </div>
       <p class="text-sm mb-2 font-medium ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
         본 서비스는 투자 참고용이며, 실제 투자 결정에 대한 책임은 투자자 본인에게 있습니다.
       </p>
@@ -992,6 +1077,9 @@ function renderFooter() {
           month: "long",
           day: "numeric",
         })}
+      </p>
+      <p class="text-[10px] mt-2 opacity-50 ${state.isDarkMode ? "text-gray-500" : "text-gray-400"}">
+        Stock Calendar © 2026
       </p>
     </footer>
   `;
@@ -1030,45 +1118,44 @@ function renderApp() {
     weekday: "long",
   });
 
-    app.innerHTML = `
+  app.innerHTML = `
+    <div class="w-full">
 
-      <div class="w-full">
+      <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
 
-        <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
+        <div class="container mx-auto px-4">
 
-          <div class="container mx-auto px-4">
+          <div class="flex items-center justify-between py-4">
 
-            <div class="flex items-center justify-between py-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
 
-              <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
 
-                <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
-
-                  <i data-lucide="trending-up" class="size-8 text-white"></i>
-
-                </div>
-
-                <div class="min-w-0">
-
-                  <div class="flex items-center gap-2 flex-wrap">
-
-                    <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
-
-                    <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
-
-                      ${todayDate}
-
-                    </span>
-
-                  </div>
-
-                  <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
-
-                </div>
+                <i data-lucide="trending-up" class="size-8 text-white"></i>
 
               </div>
 
-              
+              <div class="min-w-0">
+
+                <div class="flex items-center gap-2 flex-wrap">
+
+                  <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
+
+                  <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
+
+                    ${todayDate}
+
+                  </span>
+
+                </div>
+
+                <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
+
+              </div>
+
+            </div>
+
+            
 
               <div class="flex items-center gap-3 shrink-0 ml-2">
 
@@ -1088,13 +1175,11 @@ function renderApp() {
 
                   data-action="open-contact"
 
-                  class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${
+                  class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
 
-                    state.isDarkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
 
-                      ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-
-                      : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
 
                   }"
 
@@ -1110,13 +1195,11 @@ function renderApp() {
 
                   data-action="toggle-theme"
 
-                  class="transition-colors border rounded-md p-2 ${
+                  class="transition-colors border rounded-md p-2 ${state.isDarkMode
 
-                    state.isDarkMode
+                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
 
-                      ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
-
-                      : "bg-white hover:bg-gray-100"
+                    : "bg-white hover:bg-gray-100"
 
                   }"
 
@@ -1136,35 +1219,41 @@ function renderApp() {
 
         </div>
 
-        <div class="container mx-auto px-4 py-8">
+      </div>
 
-          ${loadingBanner}
+      <div class="container mx-auto px-4 py-8">
 
-          ${errorBanner}
+        ${loadingBanner}
 
-          ${renderSelectedEvent()}
+        ${errorBanner}
 
-          <div class="mb-6">
+        ${renderSelectedEvent()}
 
-            ${renderCalendar()}
+        <div class="mb-6">
 
-          </div>
-
-          <div>
-
-            ${renderRelatedStocks()}
-
-          </div>
-
-          ${renderFooter()}
+          ${renderCalendar()}
 
         </div>
 
-        ${renderContactModal()}
+        <div>
+
+          ${renderRelatedStocks()}
+
+        </div>
+
+        ${renderGlossarySection()} <!-- 용어 사전 추가 -->
+
+        ${renderFooter()}
 
       </div>
 
-    `;
+      ${renderContactModal()}
+
+      ${renderPrivacyModal()} <!-- 개인정보처리방침 모달 추가 -->
+
+    </div>
+
+  `;
 
   
 
@@ -1193,7 +1282,6 @@ function renderApp() {
     }
 
   }
-
   
 
   function applySearchFilter() {
@@ -1203,364 +1291,744 @@ function renderApp() {
     renderApp();
 
   }
-
   
 
+  let isAppBound = false;
+
   function bindEvents() {
+
+    if (isAppBound) return;
 
     const appRoot = document.getElementById("app");
 
     if (!appRoot) return;
-
     
 
-    state.searchQuery = "";
+    isAppBound = true;
 
+    state.searchQuery = "";
   
 
     appRoot.addEventListener("click", (event) => {
     let target = event.target;
     
-    // 텍스트 노드(3) 클릭 시 부모 요소로 포커스 이동 (버튼 텍스트 클릭 대응)
+    // 텍스트 노드 클릭 대응
+
     if (target && target.nodeType === 3) {
+
       target = target.parentNode;
+
     }
+
+
 
     // 유효한 Element인지 확인
+
     if (!target || !(target instanceof Element)) return;
 
+
+
     // 1. 이벤트 아이템 클릭 (상세 정보)
+
     const eventButton = target.closest("[data-event-id]");
+
     if (eventButton) {
+
       const eventId = eventButton.getAttribute("data-event-id");
+
       const selected = state.events.find((item) => item.id === eventId);
+
       if (selected) {
+
         state.selectedEvent = selected;
+
         renderApp();
+
       }
+
       return;
+
     }
+
+
 
     const actionButton = target.closest("[data-action]");
-    const overlay = target.closest("[data-action='close-contact-overlay']");
+
+    const overlayContact = target.closest("[data-action='close-contact-overlay']");
+
+    const overlayPrivacy = target.closest("[data-action='close-privacy-overlay']");
     
+
     // 오버레이 클릭 처리
-    if (overlay && target === overlay) {
+
+    if (overlayContact && target === overlayContact) {
+
        state.isContactModalOpen = false;
+
        renderApp();
+
        return;
+
     }
+
+    if (overlayPrivacy && target === overlayPrivacy) {
+
+       state.isPrivacyModalOpen = false;
+
+       renderApp();
+
+       return;
+
+    }
+
+
 
     if (!actionButton) return;
+
     const action = actionButton.getAttribute("data-action");
+
     const tier = actionButton.getAttribute("data-tier");
 
+
+
     // 월 이동
+
     if (action === "prev-month") {
+
       const current = state.currentDate;
+
       state.currentDate = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "next-month") {
+
       const current = state.currentDate;
+
       state.currentDate = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+
       renderApp();
+
       return;
+
     }
+
+
 
     // 다크 모드 토글
+
     if (action === "toggle-theme") {
+
       state.isDarkMode = !state.isDarkMode;
+
       localStorage.setItem("darkMode", String(state.isDarkMode));
+
       
+
       // UI 즉시 반영 (반응성 향상)
+
       if (state.isDarkMode) {
+
         document.documentElement.classList.add("dark");
+
       } else {
+
         document.documentElement.classList.remove("dark");
+
       }
+
       
+
       // 렌더링은 다음 프레임에 수행하여 끊김 방지
+
       requestAnimationFrame(() => {
+
         renderApp();
+
       });
+
       return;
+
     }
+
+
 
     if (action === "apply-search") {
+
       applySearchFilter();
+
       return;
+
     }
+
+
 
     if (action === "toggle-tier" && tier) {
+
       state.expandedTiers[tier] = !state.expandedTiers[tier];
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "copy-all" && state.selectedEvent) {
+
       const hasQuery = state.searchQuery.trim().length > 0;
+
       const payload = hasQuery
+
         ? formatAllStocksToTextFiltered(state.selectedEvent)
+
         : formatAllStocksToText(state.selectedEvent);
+
       if (hasQuery && payload.trim().length === 0) {
+
         showToast("검색 결과가 없습니다.", "error");
+
         return;
+
       }
+
       
+
       copyToClipboardWithoutRender(payload, "all", actionButton);
+
       return;
+
     }
+
+
 
     if (action === "copy-tier" && tier && state.selectedEvent) {
+
       const category = state.selectedEvent.relatedStocks.find((cat) => cat.tier === tier);
+
       if (category) {
+
         const hasQuery = state.searchQuery.trim().length > 0;
+
         const filteredStocks = hasQuery ? getFilteredStocks(category) : category.stocks;
+
         if (hasQuery && filteredStocks.length === 0) {
+
           showToast("검색 결과가 없습니다.", "error");
+
           return;
+
         }
+
         if (!hasQuery && filteredStocks.length === 0) {
+
           showToast("복사할 종목이 없습니다.", "error");
+
           return;
+
         }
+
         const payload = hasQuery
+
           ? filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n")
+
           : formatStocksToText(category);
+
           
+
         copyToClipboardWithoutRender(payload, tier, actionButton);
+
       }
+
       return;
+
     }
+
+
 
     if (action === "open-contact") {
+
       state.isContactModalOpen = true;
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "close-contact") {
+
       state.isContactModalOpen = false;
+
       renderApp();
+
       return;
+
     }
+
+
+
+    // 개인정보처리방침 열기/닫기
+
+    if (action === "open-privacy") {
+
+      state.isPrivacyModalOpen = true;
+
+      renderApp();
+
+      return;
+
+    }
+
+
+
+    if (action === "close-privacy") {
+
+      state.isPrivacyModalOpen = false;
+
+      renderApp();
+
+      return;
+
+    }
+
   });
+
+
+
+  // ... (submit, input event listeners same as before)
 
   appRoot.addEventListener("submit", async (event) => {
+
     const target = event.target;
+
     if (target instanceof HTMLFormElement && target.id === "contact-form") {
+
       event.preventDefault();
+
       const form = target;
+
       const submitBtn = form.querySelector("button[type=submit]");
+
       const originalBtnText = submitBtn.textContent;
+
       
+
       try {
+
         submitBtn.disabled = true;
+
         submitBtn.textContent = "전송 중...";
+
         
+
         const formData = new FormData(form);
+
         const response = await fetch(form.action, {
+
           method: form.method,
+
           body: formData,
+
           headers: {
+
             'Accept': 'application/json'
+
           }
+
         });
+
         
+
         if (response.ok) {
+
           showToast("문의가 성공적으로 전송되었습니다!", "success");
+
           form.reset();
+
           state.isContactModalOpen = false;
+
           renderApp();
+
         } else {
+
           showToast("전송에 실패했습니다. 다시 시도해주세요.", "error");
+
         }
+
       } catch (error) {
+
         showToast("오류가 발생했습니다.", "error");
+
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
+
+        if (submitBtn) {
+
+            submitBtn.disabled = false;
+
+            submitBtn.textContent = originalBtnText;
+
+        }
+
       }
+
     }
+
   });
+
+
 
   appRoot.addEventListener("input", (event) => {
+
     const target = event.target;
+
     if (!(target instanceof HTMLInputElement)) return;
+
     if (target.id === "stock-search-input") {
+
       if (state.isComposing || target.isComposing) {
+
         state.searchQuery = target.value;
+
         return;
+
       }
+
       state.searchQuery = target.value;
+
     }
+
   });
+
+
 
   appRoot.addEventListener("compositionstart", (event) => {
+
     const target = event.target;
+
     if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+
       state.isComposing = true;
+
     }
+
   });
+
+
 
   appRoot.addEventListener("compositionend", (event) => {
+
     const target = event.target;
+
     if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+
       state.isComposing = false;
+
       state.searchQuery = target.value;
+
     }
+
   });
 
+
+
   appRoot.addEventListener("keydown", (event) => {
+
     const target = event.target;
+
     if (!(target instanceof HTMLInputElement)) return;
+
     if (target.id === "stock-search-input" && event.key === "Enter") {
+
       applySearchFilter();
+
     }
+
   });
+
 }
 
 async function copyToClipboardWithoutRender(text, key, buttonElement) {
+
   try {
+
     let successful = false;
+
     if (navigator.clipboard && isSecureContext) {
+
       try {
+
         await navigator.clipboard.writeText(text);
+
         successful = true;
+
       } catch (clipboardError) {
+
       }
+
     }
+
     
+
     if (!successful) {
+
       successful = fallbackCopySilent(text);
+
     }
+
+
 
     if (successful) {
+
       showToast("클립보드에 복사되었습니다!", "success");
+
       
+
       if (buttonElement) {
+
         const originalHtml = buttonElement.innerHTML;
-        const width = buttonElement.offsetWidth;
+
+        const width = buttonElement.offsetWidth; 
+
         buttonElement.style.width = `${width}px`; 
+
         
+
         const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-check size-4${key === 'all' ? '' : ' size-5'}"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 8"/></svg>`;
+
         
+
         if (key === 'all') {
+
              buttonElement.innerHTML = `${checkIcon}<span>복사 완료</span>`;
+
         } else {
+
              const textDiv = buttonElement.querySelector('.text-left h3');
+
              if (textDiv) textDiv.textContent = "복사 완료";
+
              const iconDiv = buttonElement.querySelector('div:first-child');
+
              if (iconDiv) iconDiv.innerHTML = checkIcon;
+
         }
 
+
+
         setTimeout(() => {
+
           buttonElement.innerHTML = originalHtml;
+
           buttonElement.style.width = '';
+
           if (typeof lucide !== "undefined") {
+
             lucide.createIcons();
+
           }
+
         }, 2000);
+
       }
+
     } else {
+
       throw new Error("Copy failed");
+
     }
+
   } catch (error) {
+
     showToast("복사에 실패했습니다.", "error");
+
   }
+
 }
 
 function fallbackCopySilent(text) {
+
   try {
+
     const textarea = document.createElement("textarea");
+
     textarea.value = text;
+
     textarea.style.position = "fixed";
+
     textarea.style.top = "0";
+
     textarea.style.left = "0";
+
     textarea.style.width = "2em";
+
     textarea.style.height = "2em";
+
     textarea.style.padding = "0";
+
     textarea.style.border = "none";
+
     textarea.style.outline = "none";
+
     textarea.style.boxShadow = "none";
+
     textarea.style.background = "transparent";
+
     textarea.style.opacity = "0";
+
     document.body.appendChild(textarea);
+
     textarea.focus();
+
     textarea.select();
+
     const successful = document.execCommand("copy");
+
     document.body.removeChild(textarea);
+
     return successful;
+
   } catch (error) {
+
     return false;
+
   }
+
 }
 
 async function init() {
+
   renderApp();
+
   try {
+
     const embeddedEvents = loadEventsFromEmbeddedData();
+
     if (embeddedEvents && embeddedEvents.length > 0) {
+
       state.events = embeddedEvents;
+
       state.lastUpdateDate =
+
         embeddedEvents.reduce((latest, event) => {
+
           if (event.lastUpdated) {
+
             return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
+
           }
+
           return latest;
+
         }, null) || new Date();
 
+
+
       const today = new Date();
+
       const todayEvents = embeddedEvents.filter((event) => {
+
         const eventDate = new Date(event.date);
+
         return (
+
           eventDate.getDate() === today.getDate() &&
+
           eventDate.getMonth() === today.getMonth() &&
+
           eventDate.getFullYear() === today.getFullYear()
+
         );
+
       });
+
       if (todayEvents.length > 0) {
+
         state.selectedEvent = todayEvents[0];
+
       }
+
+
 
       state.isLoading = false;
+
       renderApp();
+
       return;
+
     }
+
+
 
     const loadedEvents = await loadEventsFromJSON();
+
     state.events = loadedEvents;
+
     state.lastUpdateDate = loadedEvents.reduce((latest, event) => {
+
       if (event.lastUpdated) {
+
         return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
+
       }
+
       return latest;
+
     }, null) || new Date();
 
+
+
     const today = new Date();
+
     const todayEvents = loadedEvents.filter((event) => {
+
       const eventDate = new Date(event.date);
+
       return (
+
         eventDate.getDate() === today.getDate() &&
+
         eventDate.getMonth() === today.getMonth() &&
+
         eventDate.getFullYear() === today.getFullYear()
+
       );
+
     });
+
     if (todayEvents.length > 0) {
+
       state.selectedEvent = todayEvents[0];
+
     }
+
   } catch (error) {
+
     state.loadError = "데이터 파일을 불러오지 못했습니다. app/data/uploaded 경로를 확인해주세요.";
+
     state.events = [];
+
   } finally {
+
     state.isLoading = false;
+
     renderApp();
+
     // 이벤트 바인딩은 DOM이 렌더링된 후 최초 1회만 수행
+
     bindEvents();
+
   }
+
 }
 
 init();
