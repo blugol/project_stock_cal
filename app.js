@@ -1189,18 +1189,18 @@ function bindEvents() {
       state.isDarkMode = !state.isDarkMode;
       localStorage.setItem("darkMode", String(state.isDarkMode));
       
-      // 즉시 반영: HTML 클래스 토글
       if (state.isDarkMode) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
       
-      // 전체 리렌더링 대신 효율적인 업데이트가 이상적이지만, 
-      // 현재 구조상 스타일 의존성이 강해 전체 렌더링을 유지하되
-      // 사용자 경험을 위해 약간의 지연을 주거나 디바운싱을 고려할 수 있음.
-      // 여기서는 렌더링 직전에 클래스를 먼저 바꿔 반응성을 높임.
-      renderApp();
+      // 즉각적인 리렌더링으로 인한 버튼 유실 방지를 위해 지연 처리 (디바운싱 유사 효과)
+      // 사용자가 버튼을 연타할 때마다 매번 DOM을 갈아엎지 않도록 함
+      if (window.themeUpdateTimer) clearTimeout(window.themeUpdateTimer);
+      window.themeUpdateTimer = setTimeout(() => {
+        renderApp();
+      }, 100);
       return;
     }
 
