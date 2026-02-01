@@ -13,6 +13,7 @@ const state = {
   searchQuery: "",
   keepSearchFocus: false,
   isComposing: false,
+  isContactModalOpen: false,
 };
 
 const indicatorGuides = {
@@ -448,8 +449,7 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        ${
-          actualValue !== null
+        ${actualValue !== null
             ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
             : `<p class="text-lg font-bold text-gray-400">미발표</p>`
         }
@@ -460,13 +460,7 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">괴리율</p>
-        <p class="text-lg font-bold ${
-          event.gap_analysis > 0
-            ? "text-red-600"
-            : event.gap_analysis < 0
-            ? "text-blue-600"
-            : "text-gray-600"
-        }">
+        <p class="text-lg font-bold ${event.gap_analysis > 0 ? "text-red-600" : event.gap_analysis < 0 ? "text-blue-600" : "text-gray-600"}">
           ${event.gap_analysis > 0 ? "+" : ""}${Number(event.gap_analysis).toFixed(1)}%
         </p>
       </div>
@@ -494,28 +488,20 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${
-            guide
-              ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
+          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
                   기준: ${escapeHtml(guide.basePoint)}
-                </span>`
-              : ""
-          }
+                </span>` : ""}
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
             ${formatDateKR(event.date)}
           </span>
         </div>
       </div>
-      ${
-        hasStats
-          ? `
+      ${hasStats ? `
             <div class="p-4">
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                 ${statsCards.join("")}
               </div>
-              ${
-                event.base_guide
-                  ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
+              ${event.base_guide ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-blue-300" : "text-blue-900"}">
                         <span>💡</span>
                         <span>해석 가이드</span>
@@ -523,12 +509,8 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">
                         ${escapeHtml(event.base_guide)}
                       </p>
-                    </div>`
-                  : ""
-              }
-              ${
-                event.tooltip
-                  ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
+                    </div>` : ""}
+              ${event.tooltip ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
                         <span>ℹ️</span>
                         <span>상세 정보</span>
@@ -536,12 +518,8 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
                         ${escapeHtml(event.tooltip)}
                       </p>
-                    </div>`
-                  : ""
-              }
-              ${
-                guide
-                  ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
+                    </div>` : ""}
+              ${guide ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
                       <h4 class="font-semibold mb-3 flex items-center gap-2 ${state.isDarkMode ? "text-green-300" : "text-green-900"}">
                         <span>📊</span>
                         <span>지표 기준치 가이드</span>
@@ -560,9 +538,7 @@ function renderSelectedEvent() {
                           <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">${escapeHtml(guide.lowInterpretation)}</span>
                         </div>
                       </div>
-                    </div>`
-                  : ""
-              }
+                    </div>` : ""}
             </div>
           `
           : `
@@ -614,34 +590,12 @@ function renderCalendar() {
       const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
       const dayOfWeek = index % 7;
       return `
-        <div class="border-2 rounded-lg p-2 flex flex-col ${
-          isToday
-            ? state.isDarkMode
-              ? "bg-blue-950 border-blue-400 shadow-xl ring-2 ring-blue-400/80"
-              : "bg-yellow-50 border-yellow-400 shadow-xl ring-2 ring-yellow-400/70"
-            : state.isDarkMode
-            ? "border-gray-600 bg-gray-850 shadow-md"
-            : "border-gray-800 bg-stone-100 shadow-md"
-        }" style="height:${minCellHeight}px">
+        <div class="border-2 rounded-lg p-2 flex flex-col ${isToday ? (state.isDarkMode ? "bg-blue-950 border-blue-400 shadow-xl ring-2 ring-blue-400/80" : "bg-yellow-50 border-yellow-400 shadow-xl ring-2 ring-yellow-400/70") : (state.isDarkMode ? "border-gray-600 bg-gray-850 shadow-md" : "border-gray-800 bg-stone-100 shadow-md")}" style="height:${minCellHeight}px">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-bold ${
-              dayOfWeek === 0
-                ? "text-red-600"
-                : dayOfWeek === 6
-                ? "text-blue-600"
-                : state.isDarkMode
-                ? "text-gray-300"
-                : "text-slate-900"
-            }">
+            <span class="text-sm font-bold ${dayOfWeek === 0 ? "text-red-600" : dayOfWeek === 6 ? "text-blue-600" : state.isDarkMode ? "text-gray-300" : "text-slate-900"}">
               ${day}
             </span>
-            ${
-              dayEvents.length
-                ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                    state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-700 text-white"
-                  }">${dayEvents.length}</span>`
-                : ""
-            }
+            ${dayEvents.length ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-700 text-white"}">${dayEvents.length}</span>` : ""}
           </div>
           <div class="flex-1 space-y-1 overflow-y-auto overflow-x-hidden scrollbar-slim">
             ${dayEvents
@@ -651,28 +605,12 @@ function renderCalendar() {
                 return `
                   <button
                     data-event-id="${event.id}"
-                    class="w-full text-left px-2 py-1.5 rounded-md text-xs transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:shadow-lg hover:z-10 font-semibold border ${
-                      isSelected
-                        ? "bg-blue-600 text-white shadow-xl border-blue-400"
-                        : state.isDarkMode
-                        ? "hover:bg-opacity-80 hover:brightness-125"
-                        : "hover:bg-opacity-100 hover:brightness-105 shadow"
-                    }"
-                    style="${
-                      isSelected
-                        ? ""
-                        : `background-color:${importanceColor}${state.isDarkMode ? "40" : "50"};color:${
-                            state.isDarkMode ? importanceColor : "#1e293b"
-                          };border-color:${importanceColor}${state.isDarkMode ? "60" : "80"};font-weight:${
-                            state.isDarkMode ? "500" : "600"
-                          };`
-                    }"
+                    class="w-full text-left px-2 py-1.5 rounded-md text-xs transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:shadow-lg hover:z-10 font-semibold border ${isSelected ? "bg-blue-600 text-white shadow-xl border-blue-400" : state.isDarkMode ? "hover:bg-opacity-80 hover:brightness-125" : "hover:bg-opacity-100 hover:brightness-105 shadow"}"
+                    style="${isSelected ? "" : `background-color:${importanceColor}${state.isDarkMode ? "40" : "50"};color:${state.isDarkMode ? importanceColor : "#1e293b"};border-color:${importanceColor}${state.isDarkMode ? "60" : "80"};font-weight:${state.isDarkMode ? "500" : "600"};`}"
                     title="${escapeHtml(event.title)}"
                   >
                     <span class="truncate flex-1">${escapeHtml(event.title)}</span>
-                    <span class="text-[10px] font-bold px-1 py-0.5 rounded ${
-                      isSelected ? "text-white/90 bg-white/20" : state.isDarkMode ? "opacity-80" : "bg-slate-800 text-white"
-                    }">
+                    <span class="text-[10px] font-bold px-1 py-0.5 rounded ${isSelected ? "text-white/90 bg-white/20" : state.isDarkMode ? "opacity-80" : "bg-slate-800 text-white"}">
                       ${formatTimeKR(new Date(event.date))}
                     </span>
                   </button>
@@ -829,24 +767,17 @@ function renderStockCategory(category) {
           <i data-lucide="${expanded ? "chevron-up" : "chevron-down"}" class="size-5"></i>
         </div>
       </button>
-      ${
-        expanded
-          ? `
+      ${expanded ? `
             <div class="p-4 ${state.isDarkMode ? "bg-gray-800/50" : "bg-white"}">
               <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-slim">
-                ${
-                  filteredStocks.length === 0
+                ${filteredStocks.length === 0
                     ? `<div class="text-sm text-center py-6 ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
                         검색 결과가 없습니다.
                       </div>`
                     : filteredStocks
                         .map(
                           (stock, idx) => `
-                            <div class="p-3 rounded-lg border-2 transition-colors ${
-                              state.isDarkMode
-                                ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                                : "bg-gray-50 border-gray-400 hover:bg-white shadow-md"
-                            }">
+                            <div class="p-3 rounded-lg border-2 transition-colors ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-50 border-gray-400 hover:bg-white shadow-md"}">
                               <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1 min-w-0">
                                   <div class="flex items-center gap-2 mb-1">
@@ -871,9 +802,7 @@ function renderStockCategory(category) {
               <button
                 data-action="copy-tier"
                 data-tier="${category.tier}"
-                class="w-full px-4 py-2 flex items-center justify-center transition-colors ${
-                  filteredStocks.length === 0 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
-                } ${tierColors.bg} mt-2"
+                class="w-full px-4 py-2 flex items-center justify-center transition-colors ${filteredStocks.length === 0 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"} ${tierColors.bg} mt-2"
               >
                 <div class="flex items-center gap-2">
                   <div class="${tierColors.text}">
@@ -912,9 +841,7 @@ function renderRelatedStocks() {
           <h2 class="text-2xl font-bold ${state.isDarkMode ? "text-white" : "text-gray-900"}">📈 관련 주식 종목</h2>
           <button
             data-action="copy-all"
-            class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-              state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }"
+            class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}"
           >
             <i data-lucide="${state.copiedStates.all ? "check-check" : "copy"}" class="size-4"></i>
             <span class="text-sm font-medium">${state.copiedStates.all ? "복사 완료" : "전체 복사"}</span>
@@ -922,9 +849,7 @@ function renderRelatedStocks() {
         </div>
         <div class="flex items-center gap-3">
           <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">${escapeHtml(event.title)}</p>
-          <span class="px-2 py-1 rounded-full text-xs font-medium ${
-            state.isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"
-          }">총 ${filteredTotal}개 종목</span>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${state.isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"}">총 ${filteredTotal}개 종목</span>
         </div>
         <div class="mt-4">
           <div class="flex flex-col items-center gap-2 md:flex-row md:justify-center md:items-center">
@@ -933,19 +858,11 @@ function renderRelatedStocks() {
               type="text"
               value="${escapeHtml(state.searchQuery)}"
               placeholder="종목명/코드/섹터 검색"
-              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${
-                state.isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400"
-                  : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
-              }"
+              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400" : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"}"
             />
             <button
               data-action="apply-search"
-              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${
-                state.isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600"
-                  : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"
-              }"
+              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600" : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"}"
             >
               검색 적용
             </button>
@@ -957,6 +874,82 @@ function renderRelatedStocks() {
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         ${categories.map((category) => renderStockCategory(category)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderContactModal() {
+  if (!state.isContactModalOpen) return "";
+
+  return `
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" onclick="if(event.target === this) document.querySelector('[data-action=close-contact]').click()">
+      <div class="w-full max-w-md rounded-xl shadow-2xl overflow-hidden ${state.isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold ${state.isDarkMode ? "text-white" : "text-gray-900"}">제휴 및 문의</h3>
+            <button
+              data-action="close-contact"
+              class="rounded-lg p-2 transition-colors ${state.isDarkMode ? "text-gray-400 hover:bg-gray-700 hover:text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"}"
+            >
+              <i data-lucide="x" class="size-5"></i>
+            </button>
+          </div>
+          
+          <form id="contact-form" action="https://formspree.io/f/xdadojeo" method="POST" class="space-y-4">
+            <div>
+              <label for="contact-name" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
+                이름 (또는 회사명)
+              </label>
+              <input
+                type="text"
+                id="contact-name"
+                name="name"
+                required
+                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
+                placeholder="홍길동"
+              />
+            </div>
+            
+            <div>
+              <label for="contact-email" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
+                이메일
+              </label>
+              <input
+                type="email"
+                id="contact-email"
+                name="email"
+                required
+                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
+                placeholder="example@email.com"
+              />
+            </div>
+            
+            <div>
+              <label for="contact-message" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
+                문의 내용
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                required
+                rows="4"
+                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
+                placeholder="제휴 제안이나 문의사항을 자유롭게 적어주세요."
+              ></textarea>
+            </div>
+            
+            <button
+              type="submit"
+              class="w-full rounded-lg py-3 font-bold text-white transition-all transform active:scale-95 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+            >
+              보내기
+            </button>
+            <p class="text-xs text-center ${state.isDarkMode ? "text-gray-500" : "text-gray-400"}">
+              * Formspree를 통해 안전하게 전송됩니다.
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   `;
@@ -1032,21 +1025,24 @@ function renderApp() {
                 <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">경제 일정과 관련된 종목 한눈에보기</p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <button
+                data-action="open-contact"
+                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
+              >
+                <i data-lucide="mail" class="size-4"></i>
+                <span>제휴 문의</span>
+              </button>
               <button
                 data-action="toggle-theme"
-                class="transition-colors border rounded-md p-2 ${
-                  state.isDarkMode
-                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
-                    : "bg-white hover:bg-gray-100"
-                }"
+                class="transition-colors border rounded-md p-2 ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400" : "bg-white hover:bg-gray-100"}"
                 aria-label="다크 모드 토글"
               >
                 <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
               </button>
-              <div class="px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
+              <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
                 <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
-                  <i data-lucide="trending-up" class="size-4"></i>
+                  <i data-lucide="calendar" class="size-4"></i>
                   <span>일정 캘린더</span>
                 </div>
               </div>
@@ -1066,6 +1062,7 @@ function renderApp() {
         </div>
         ${renderFooter()}
       </div>
+      ${renderContactModal()}
     </div>
   `;
 
@@ -1133,6 +1130,7 @@ function bindEvents() {
     if (action === "toggle-tier" && tier) {
       state.expandedTiers[tier] = !state.expandedTiers[tier];
       renderApp();
+      return;
     }
 
     if (action === "copy-all" && state.selectedEvent) {
@@ -1145,6 +1143,7 @@ function bindEvents() {
         return;
       }
       copyToClipboard(payload, "all");
+      return;
     }
 
     if (action === "copy-tier" && tier && state.selectedEvent) {
@@ -1164,6 +1163,57 @@ function bindEvents() {
           ? filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n")
           : formatStocksToText(category);
         copyToClipboard(payload, tier);
+      }
+      return;
+    }
+
+    if (action === "open-contact") {
+      state.isContactModalOpen = true;
+      renderApp();
+      return;
+    }
+
+    if (action === "close-contact") {
+      state.isContactModalOpen = false;
+      renderApp();
+      return;
+    }
+  });
+
+  appRoot.addEventListener("submit", async (event) => {
+    const target = event.target;
+    if (target instanceof HTMLFormElement && target.id === "contact-form") {
+      event.preventDefault();
+      const form = target;
+      const submitBtn = form.querySelector("button[type=submit]");
+      const originalBtnText = submitBtn.textContent;
+      
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "전송 중...";
+        
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          showToast("문의가 성공적으로 전송되었습니다!", "success");
+          form.reset();
+          state.isContactModalOpen = false;
+          renderApp();
+        } else {
+          showToast("전송에 실패했습니다. 다시 시도해주세요.", "error");
+        }
+      } catch (error) {
+        showToast("오류가 발생했습니다.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
       }
     }
   });
@@ -1203,7 +1253,12 @@ function bindEvents() {
     }
   });
 
-
+  appRoot.addEventListener("blur", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+      applySearchFilter();
+    }
+  }, true);
 
 }
 
