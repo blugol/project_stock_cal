@@ -1219,9 +1219,18 @@ function renderApp() {
   
 
     appRoot.addEventListener("click", (event) => {
-    const target = event.target;
-    // SVG 요소 클릭 시 HTMLElement가 아닐 수 있으므로 체크 완화
-    if (!target) return;
+    let target = event.target;
+    
+    // 텍스트 노드(3) 클릭 시 부모 요소로 포커스 이동 (버튼 텍스트 클릭 대응)
+    if (target && target.nodeType === 3) {
+      target = target.parentNode;
+    }
+
+    // 유효한 Element인지 확인
+    if (!target || !(target instanceof Element)) return;
+
+    // 1. 이벤트 아이템 클릭 (상세 정보)
+    const eventButton = target.closest("[data-event-id]");
 
     const eventButton = target.closest("[data-event-id]");
     if (eventButton) {
