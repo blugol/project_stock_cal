@@ -1030,103 +1030,195 @@ function renderApp() {
     weekday: "long",
   });
 
-  app.innerHTML = `
-    <div class="w-full">
-      <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
-        <div class="container mx-auto px-4">
-          <div class="flex items-center justify-between py-4">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
-                <i data-lucide="trending-up" class="size-8 text-white"></i>
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
-                  <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
-                    ${todayDate}
-                  </span>
+    app.innerHTML = `
+
+      <div class="w-full">
+
+        <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
+
+          <div class="container mx-auto px-4">
+
+            <div class="flex items-center justify-between py-4">
+
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
+
+                  <i data-lucide="trending-up" class="size-8 text-white"></i>
+
                 </div>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-3 shrink-0 ml-2">
-              <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
-                <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
-                  <i data-lucide="calendar" class="size-4"></i>
-                  <span>일정 캘린더</span>
+
+                <div class="min-w-0">
+
+                  <div class="flex items-center gap-2 flex-wrap">
+
+                    <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
+
+                    <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
+
+                      ${todayDate}
+
+                    </span>
+
+                  </div>
+
+                  <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
+
                 </div>
+
               </div>
-              <button
-                data-action="open-contact"
-                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                }"
-              >
-                <i data-lucide="mail" class="size-4"></i>
-                <span>제휴 문의</span>
-              </button>
-              <button
-                data-action="toggle-theme"
-                class="transition-colors border rounded-md p-2 ${state.isDarkMode
-                  ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
-                  : "bg-white hover:bg-gray-100"
-                }"
-                aria-label="다크 모드 토글"
-              >
-                <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
-              </button>
+
+              
+
+              <div class="flex items-center gap-3 shrink-0 ml-2">
+
+                <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
+
+                  <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
+
+                    <i data-lucide="calendar" class="size-4"></i>
+
+                    <span>일정 캘린더</span>
+
+                  </div>
+
+                </div>
+
+                <button
+
+                  data-action="open-contact"
+
+                  class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${
+
+                    state.isDarkMode
+
+                      ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
+
+                      : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+
+                  }"
+
+                >
+
+                  <i data-lucide="mail" class="size-4"></i>
+
+                  <span>제휴 문의</span>
+
+                </button>
+
+                <button
+
+                  data-action="toggle-theme"
+
+                  class="transition-colors border rounded-md p-2 ${
+
+                    state.isDarkMode
+
+                      ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
+
+                      : "bg-white hover:bg-gray-100"
+
+                  }"
+
+                  aria-label="다크 모드 토글"
+
+                >
+
+                  <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
+
+                </button>
+
+              </div>
+
             </div>
+
           </div>
-        </div>
-      </div>
-      <div class="container mx-auto px-4 py-8">
-        ${loadingBanner}
-        ${errorBanner}
-        ${renderSelectedEvent()}
-        <div class="mb-6">
-          ${renderCalendar()}
-        </div>
-        <div>
-          ${renderRelatedStocks()}
-        </div>
-        ${renderFooter()}
-      </div>
-      ${renderContactModal()}
-    </div>
-  `;
 
-  bindEvents();
-  if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-  }
-  if (state.keepSearchFocus) {
-    const searchInput = document.getElementById("stock-search-input");
-    if (searchInput && searchInput instanceof HTMLInputElement) {
-      searchInput.focus();
-      const length = searchInput.value.length;
-      searchInput.setSelectionRange(length, length);
+        </div>
+
+        <div class="container mx-auto px-4 py-8">
+
+          ${loadingBanner}
+
+          ${errorBanner}
+
+          ${renderSelectedEvent()}
+
+          <div class="mb-6">
+
+            ${renderCalendar()}
+
+          </div>
+
+          <div>
+
+            ${renderRelatedStocks()}
+
+          </div>
+
+          ${renderFooter()}
+
+        </div>
+
+        ${renderContactModal()}
+
+      </div>
+
+    `;
+
+  
+
+    if (typeof lucide !== "undefined") {
+
+      lucide.createIcons();
+
     }
-    state.keepSearchFocus = false;
+
+    if (state.keepSearchFocus) {
+
+      const searchInput = document.getElementById("stock-search-input");
+
+      if (searchInput && searchInput instanceof HTMLInputElement) {
+
+        searchInput.focus();
+
+        const length = searchInput.value.length;
+
+        searchInput.setSelectionRange(length, length);
+
+      }
+
+      state.keepSearchFocus = false;
+
+    }
+
   }
-}
 
-function applySearchFilter() {
-  state.keepSearchFocus = true;
-  renderApp();
-}
+  
 
-function bindEvents() {
-  const appRoot = document.getElementById("app");
-  if (!appRoot) return;
-  if (appRoot.dataset.bound === "true") {
-    return;
+  function applySearchFilter() {
+
+    state.keepSearchFocus = true;
+
+    renderApp();
+
   }
-  appRoot.dataset.bound = "true";
-  state.searchQuery = "";
 
-  appRoot.addEventListener("click", (event) => {
+  
+
+  function bindEvents() {
+
+    const appRoot = document.getElementById("app");
+
+    if (!appRoot) return;
+
+    
+
+    state.searchQuery = "";
+
+  
+
+    appRoot.addEventListener("click", (event) => {
     const target = event.target;
     // SVG 요소 클릭 시 HTMLElement가 아닐 수 있으므로 체크 완화
     if (!target) return;
@@ -1441,6 +1533,8 @@ async function init() {
   } finally {
     state.isLoading = false;
     renderApp();
+    // 이벤트 바인딩은 DOM이 렌더링된 후 최초 1회만 수행
+    bindEvents();
   }
 }
 
