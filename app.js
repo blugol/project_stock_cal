@@ -852,8 +852,8 @@ function renderRelatedStocks() {
             data-action="copy-all"
             class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}"
           >
-            <i data-lucide="${state.copiedStates.all ? "check-check" : "copy"}" class="size-4"></i>
-            <span class="text-sm font-medium">${state.copiedStates.all ? "복사 완료" : "전체 복사"}</span>
+            <i data-lucide="${(state.copiedStates && state.copiedStates.all) ? "check-check" : "copy"}" class="size-4"></i>
+            <span class="text-sm font-medium">${(state.copiedStates && state.copiedStates.all) ? "복사 완료" : "전체 복사"}</span>
           </button>
         </div>
         <div class="flex items-center gap-3">
