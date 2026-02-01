@@ -449,7 +449,11 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        ${actualValue !== null ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>` : `<p class="text-lg font-bold text-gray-400">미발표</p>`}
+        ${
+          actualValue !== null
+            ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
+            : `<p class="text-lg font-bold text-gray-400">미발표</p>`
+        }
       </div>
     `);
   }
@@ -457,7 +461,13 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">괴리율</p>
-        <p class="text-lg font-bold ${event.gap_analysis > 0 ? "text-red-600" : event.gap_analysis < 0 ? "text-blue-600" : "text-gray-600"}">
+        <p class="text-lg font-bold ${
+          event.gap_analysis > 0
+            ? "text-red-600"
+            : event.gap_analysis < 0
+            ? "text-blue-600"
+            : "text-gray-600"
+        }">
           ${event.gap_analysis > 0 ? "+" : ""}${Number(event.gap_analysis).toFixed(1)}%
         </p>
       </div>
@@ -485,20 +495,28 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}>
+          ${
+            guide
+              ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
                   기준: ${escapeHtml(guide.basePoint)}
-                </span>` : ""}
+                </span>`
+              : ""
+          }
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
             ${formatDateKR(event.date)}
           </span>
         </div>
       </div>
-      ${hasStats ? `
+      ${
+        hasStats
+          ? `
             <div class="p-4">
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                 ${statsCards.join("")}
               </div>
-              ${event.base_guide ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
+              ${
+                event.base_guide
+                  ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-blue-300" : "text-blue-900"}">
                         <span>💡</span>
                         <span>해석 가이드</span>
@@ -506,8 +524,12 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">
                         ${escapeHtml(event.base_guide)}
                       </p>
-                    </div>` : ""}
-              ${event.tooltip ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
+                    </div>`
+                  : ""
+              }
+              ${
+                event.tooltip
+                  ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
                         <span>ℹ️</span>
                         <span>상세 정보</span>
@@ -515,8 +537,12 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
                         ${escapeHtml(event.tooltip)}
                       </p>
-                    </div>` : ""}
-              ${guide ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
+                    </div>`
+                  : ""
+              }
+              ${
+                guide
+                  ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
                       <h4 class="font-semibold mb-3 flex items-center gap-2 ${state.isDarkMode ? "text-green-300" : "text-green-900"}">
                         <span>📊</span>
                         <span>지표 기준치 가이드</span>
@@ -524,18 +550,20 @@ function renderSelectedEvent() {
                       <div class="space-y-2">
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-green-200" : "text-green-800"}">기준점:</span>
-                          <span class="font-bold ${state.isDarkMode ? "text-green-100" : "text-green-900"}>${escapeHtml(guide.basePoint)}</span>
+                          <span class="font-bold ${state.isDarkMode ? "text-green-100" : "text-green-900"}">${escapeHtml(guide.basePoint)}</span>
                         </div>
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-red-300" : "text-red-700"}">수치 높음:</span>
-                          <span class="${state.isDarkMode ? "text-red-200" : "text-red-800"}>${escapeHtml(guide.highInterpretation)}</span>
+                          <span class="${state.isDarkMode ? "text-red-200" : "text-red-800"}">${escapeHtml(guide.highInterpretation)}</span>
                         </div>
                         <div class="flex items-start gap-2">
                           <span class="font-medium min-w-[80px] ${state.isDarkMode ? "text-blue-300" : "text-blue-700"}">수치 낮음:</span>
-                          <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}>${escapeHtml(guide.lowInterpretation)}</span>
+                          <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">${escapeHtml(guide.lowInterpretation)}</span>
                         </div>
                       </div>
-                    </div>` : ""}
+                    </div>`
+                  : ""
+              }
             </div>
           `
           : `
@@ -588,7 +616,7 @@ function renderCalendar() {
       const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
       const dayOfWeek = index % 7;
       return `
-        <div class="border rounded-lg p-1.5 flex flex-col transition-colors ${
+        <div class="border-2 rounded-lg p-1.5 flex flex-col transition-colors ${
           isToday
             ? state.isDarkMode
               ? "bg-blue-900/30 border-blue-500 shadow-md ring-1 ring-blue-500/50"
@@ -705,957 +733,3 @@ function renderCalendar() {
     </div>
   `;
 }
-
-function formatStocksToText(category) {
-  return category.stocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n");
-}
-
-function formatAllStocksToText(event) {
-  return event.relatedStocks
-    .map((category) => {
-      const header = `[${category.tierName}]`;
-      const stocks = category.stocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n");
-      return `${header}\n${stocks}`;
-    })
-    .join("\n\n");
-}
-
-function getFilteredStocks(category) {
-  const query = state.searchQuery.trim().toLowerCase();
-  if (!query) return category.stocks;
-  return category.stocks.filter((stock) => {
-    const name = String(stock.name || "").toLowerCase();
-    const code = String(stock.code || "").toLowerCase();
-    const sector = String(stock.sector || "").toLowerCase();
-    return name.includes(query) || code.includes(query) || sector.includes(query);
-  });
-}
-
-function formatAllStocksToTextFiltered(event) {
-  return event.relatedStocks
-    .map((category) => {
-      const filteredStocks = getFilteredStocks(category);
-      const header = `[${category.tierName}]`;
-      const stocks = filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n");
-      return `${header}\n${stocks}`;
-    })
-    .join("\n\n");
-}
-
-function getTierColors(tier) {
-  switch (tier) {
-    case "major":
-      return {
-        bg: state.isDarkMode ? "bg-blue-900/30" : "bg-blue-50",
-        border: state.isDarkMode ? "border-blue-700" : "border-gray-800",
-        text: state.isDarkMode ? "text-blue-300" : "text-blue-700",
-        badge: state.isDarkMode ? "bg-blue-800 text-blue-200" : "bg-blue-100 text-blue-700",
-      };
-    case "mid":
-      return {
-        bg: state.isDarkMode ? "bg-purple-900/30" : "bg-purple-50",
-        border: state.isDarkMode ? "border-purple-700" : "border-gray-800",
-        text: state.isDarkMode ? "text-purple-300" : "text-purple-700",
-        badge: state.isDarkMode ? "bg-purple-800 text-purple-200" : "bg-purple-100 text-purple-700",
-      };
-    case "small":
-      return {
-        bg: state.isDarkMode ? "bg-green-900/30" : "bg-green-50",
-        border: state.isDarkMode ? "border-green-700" : "border-gray-800",
-        text: state.isDarkMode ? "text-green-300" : "text-green-700",
-        badge: state.isDarkMode ? "bg-green-800 text-green-200" : "bg-green-100 text-green-700",
-      };
-    default:
-      return {
-        bg: state.isDarkMode ? "bg-gray-800" : "bg-gray-50",
-        border: state.isDarkMode ? "border-gray-700" : "border-gray-800",
-        text: state.isDarkMode ? "text-gray-300" : "text-gray-700",
-        badge: state.isDarkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700",
-      };
-  }
-}
-
-function renderStockCategory(category) {
-  const filteredStocks = getFilteredStocks(category);
-  const isSearching = state.searchQuery.trim().length > 0;
-  const displayCount = isSearching ? filteredStocks.length : category.stocks.length;
-
-  const tierColors = getTierColors(category.tier);
-  const expanded = state.expandedTiers[category.tier];
-  const iconName = category.tier === "major" ? "building-2" : category.tier === "mid" ? "building" : "trending-up";
-
-  return `
-    <div class="rounded-lg border-2 overflow-hidden ${tierColors.border}">
-      <button
-        data-action="toggle-tier"
-        data-tier="${category.tier}"
-        class="w-full px-4 py-3 flex items-center justify-between transition-colors ${tierColors.bg} hover:opacity-80"
-      >
-        <div class="flex items-center gap-2">
-          <div class="${tierColors.text}">
-            <i data-lucide="${iconName}" class="size-5"></i>
-          </div>
-          <div class="text-left">
-            <h3 class="font-bold ${tierColors.text}">${escapeHtml(category.tierName)}</h3>
-                  <p class="text-xs ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
-                    ${displayCount}개 종목${isSearching ? " (검색)" : ""}
-                  </p>
-          </div>
-        </div>
-        <div class="${tierColors.text}">
-          <i data-lucide="${expanded ? "chevron-up" : "chevron-down"}" class="size-5"></i>
-        </div>
-      </button>
-      ${expanded ? `
-            <div class="p-4 ${state.isDarkMode ? "bg-gray-800/50" : "bg-white"}">
-              <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-slim">
-                ${filteredStocks.length === 0
-                    ? `<div class="text-sm text-center py-6 ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
-                        검색 결과가 없습니다.
-                      </div>`
-                    : filteredStocks
-                        .map(
-                          (stock, idx) => `
-                            <div class="p-3 rounded-lg border-2 transition-colors ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-50 border-gray-400 hover:bg-white shadow-md"}">
-                              <div class="flex items-start justify-between gap-2">
-                                <div class="flex-1 min-w-0">
-                                  <div class="flex items-center gap-2 mb-1">
-                                    <h4 class="font-semibold truncate ${state.isDarkMode ? "text-white" : "text-gray-900"}">
-                                      ${escapeHtml(stock.name)}
-                                    </h4>
-                                    <span class="px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap ${tierColors.badge}">
-                                      ${escapeHtml(stock.code)}
-                                    </span>
-                                  </div>
-                                  <p class="text-xs line-clamp-2 ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
-                                    ${escapeHtml(stock.sector)}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          `
-                        )
-                        .join("")
-                }
-              </div>
-              <button
-                data-action="copy-tier"
-                data-tier="${category.tier}"
-                class="w-full px-4 py-2 flex items-center justify-center transition-colors ${filteredStocks.length === 0 ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"} ${tierColors.bg} mt-2"
-              >
-                <div class="flex items-center gap-2">
-                  <div class="${tierColors.text}">
-                    <i data-lucide="${state.copiedStates[category.tier] ? "check-check" : "copy"}" class="size-5"></i>
-                  </div>
-                  <div class="text-left">
-                    <h3 class="font-bold ${tierColors.text}">
-                      ${filteredStocks.length === 0 ? "복사할 종목 없음" : state.copiedStates[category.tier] ? "복사 완료" : "복사하기"}
-                    </h3>
-                  </div>
-                </div>
-              </button>
-            </div>
-          `
-          : ""
-      }
-    </div>
-  `;
-}
-
-function renderRelatedStocks() {
-  const event = state.selectedEvent;
-  if (!event || !event.relatedStocks || !event.relatedStocks.length) return "";
-  const totalStocks = event.relatedStocks.reduce((sum, cat) => sum + cat.stocks.length, 0);
-  const categories = ["major", "mid", "small"]
-    .map((tier) => event.relatedStocks.find((cat) => cat.tier === tier))
-    .filter(Boolean);
-  const filteredTotal = state.searchQuery.trim()
-    ? event.relatedStocks.reduce((sum, cat) => sum + getFilteredStocks(cat).length, 0)
-    : totalStocks;
-
-  return `
-    <div class="rounded-lg border shadow-lg p-6 ${state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-stone-100 border-gray-800"}">
-      <div class="mb-6">
-        <div class="flex items-start justify-between mb-2">
-          <h2 class="text-2xl font-bold ${state.isDarkMode ? "text-white" : "text-gray-900"}">📈 관련 주식 종목</h2>
-          <button
-            data-action="copy-all"
-            class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}"
-          >
-            <i data-lucide="${state.copiedStates.all ? "check-check" : "copy"}" class="size-4"></i>
-            <span>${state.copiedStates.all ? "복사 완료" : "전체 복사"}</span>
-          </button>
-        </div>
-        <div class="flex items-center gap-3">
-          <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}>${escapeHtml(event.title)}</p>
-          <span class="px-2 py-1 rounded-full text-xs font-medium ${state.isDarkMode ? "bg-blue-900/50 text-blue-300" : "bg-blue-100 text-blue-700"}">총 ${filteredTotal}개 종목</span>
-        </div>
-        <div class="mt-4">
-          <div class="flex flex-col items-center gap-2 md:flex-row md:justify-center md:items-center">
-            <input
-              id="stock-search-input"
-              type="text"
-              value="${escapeHtml(state.searchQuery)}"
-              placeholder="종목명/코드/섹터 검색"
-              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400" : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"}"
-            />
-            <button
-              data-action="apply-search"
-              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600" : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"}"
-            >
-              검색 적용
-            </button>
-          </div>
-          <p class="mt-1 text-xs text-center ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">
-            Enter 키를 누르거나 "검색 적용"을 누르면 반영됩니다.
-          </p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        ${categories.map((category) => renderStockCategory(category)).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderContactModal() {
-  if (!state.isContactModalOpen) return "";
-
-  return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" onclick="if(event.target === this) document.querySelector('[data-action=close-contact]').click()">
-      <div class="w-full max-w-md rounded-xl shadow-2xl overflow-hidden ${state.isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}">
-        <div class="p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-bold ${state.isDarkMode ? "text-white" : "text-gray-900"}">제휴 및 문의</h3>
-            <button
-              data-action="close-contact"
-              class="rounded-lg p-2 transition-colors ${state.isDarkMode ? "text-gray-400 hover:bg-gray-700 hover:text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"}"
-            >
-              <i data-lucide="x" class="size-5"></i>
-            </button>
-          </div>
-          
-          <form id="contact-form" action="https://formspree.io/f/xdadojeo" method="POST" class="space-y-4">
-            <div>
-              <label for="contact-name" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
-                이름 (또는 회사명)
-              </label>
-              <input
-                type="text"
-                id="contact-name"
-                name="name"
-                required
-                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
-                placeholder="홍길동"
-              />
-            </div>
-            
-            <div>
-              <label for="contact-email" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
-                이메일
-              </label>
-              <input
-                type="email"
-                id="contact-email"
-                name="email"
-                required
-                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
-                placeholder="example@email.com"
-              />
-            </div>
-            
-            <div>
-              <label for="contact-message" class="block text-sm font-medium mb-1 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
-                문의 내용
-              </label>
-              <textarea
-                id="contact-message"
-                name="message"
-                required
-                rows="4"
-                class="w-full rounded-lg px-4 py-2.5 text-sm border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500"}"
-                placeholder="제휴 제안이나 문의사항을 자유롭게 적어주세요."
-              ></textarea>
-            </div>
-            
-            <button
-              type="submit"
-              class="w-full rounded-lg py-3 font-bold text-white transition-all transform active:scale-95 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
-            >
-              보내기
-            </button>
-            <p class="text-xs text-center ${state.isDarkMode ? "text-gray-500" : "text-gray-400"}">
-              * Formspree를 통해 안전하게 전송됩니다.
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderFooter() {
-  if (!state.lastUpdateDate) return "";
-  return `
-    <footer class="mt-12 pt-8 border-t text-center ${state.isDarkMode ? "border-gray-700" : "border-gray-800"}">
-      <p class="text-sm mb-2 font-medium ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
-        본 서비스는 투자 참고용이며, 실제 투자 결정에 대한 책임은 투자자 본인에게 있습니다.
-      </p>
-      <p class="text-xs font-medium ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">
-        마지막 업데이트: ${state.lastUpdateDate.toLocaleDateString("ko-KR", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </p>
-    </footer>
-  `;
-}
-
-function renderApp() {
-
-  const app = document.getElementById("app");
-
-  if (!app) return;
-
-
-
-  if (state.isDarkMode) {
-
-    document.documentElement.classList.add("dark");
-
-  } else {
-
-    document.documentElement.classList.remove("dark");
-
-  }
-
-
-
-  const backgroundClass = state.isDarkMode
-
-    ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-
-    : "bg-gradient-to-br from-stone-400 via-neutral-400 to-stone-400";
-
-
-
-  const headerBg = state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-stone-50 border-gray-800 shadow-md";
-
-
-
-  app.className = `min-h-screen transition-colors duration-300 ${backgroundClass}`;
-
-
-
-  const loadingBanner = state.isLoading
-
-    ? `<div class="mb-4 text-center text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">데이터를 불러오는 중입니다...</div>`
-
-    : "";
-
-
-
-  const errorBanner = state.loadError
-
-    ? `<div class="mb-4 text-center text-sm text-red-600">${escapeHtml(state.loadError)}</div>`
-
-    : "";
-
-
-
-  const todayDate = new Date().toLocaleDateString("ko-KR", {
-
-    year: "numeric",
-
-    month: "long",
-
-    day: "numeric",
-
-    weekday: "long",
-
-  });
-
-
-
-  app.innerHTML = `
-
-    <div class="w-full">
-
-      <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
-
-        <div class="container mx-auto px-4">
-
-          <div class="flex items-center justify-between py-4">
-
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-
-              <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
-
-                <i data-lucide="trending-up" class="size-8 text-white"></i>
-
-              </div>
-
-              <div class="min-w-0">
-
-                <div class="flex items-center gap-2 flex-wrap">
-
-                  <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
-
-                  <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
-
-                    ${todayDate}
-
-                  </span>
-
-                </div>
-
-                <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
-
-              </div>
-
-            </div>
-
-            
-
-            <div class="flex items-center gap-3 shrink-0 ml-2">
-
-              <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
-
-                <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
-
-                  <i data-lucide="calendar" class="size-4"></i>
-
-                  <span>일정 캘린더</span>
-
-                </div>
-
-              </div>
-
-              <button
-
-                data-action="open-contact"
-
-                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
-
-              >
-
-                <i data-lucide="mail" class="size-4"></i>
-
-                <span>제휴 문의</span>
-
-              </button>
-
-              <button
-
-                data-action="toggle-theme"
-
-                class="transition-colors border rounded-md p-2 ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400" : "bg-white hover:bg-gray-100"}"
-
-                aria-label="다크 모드 토글"
-
-              >
-
-                <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
-
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="container mx-auto px-4 py-8">
-
-        ${loadingBanner}
-
-        ${errorBanner}
-
-        ${renderSelectedEvent()}
-
-        <div class="mb-6">
-
-          ${renderCalendar()}
-
-        </div>
-
-        <div>
-
-          ${renderRelatedStocks()}
-
-        </div>
-
-        ${renderFooter()}
-
-      </div>
-
-      ${renderContactModal()}
-
-    </div>
-
-  `;
-
-
-
-  bindEvents();
-
-  if (typeof lucide !== "undefined") {
-
-    lucide.createIcons();
-
-  }
-
-  if (state.keepSearchFocus) {
-
-    const searchInput = document.getElementById("stock-search-input");
-
-    if (searchInput && searchInput instanceof HTMLInputElement) {
-
-      searchInput.focus();
-
-      const length = searchInput.value.length;
-
-      searchInput.setSelectionRange(length, length);
-
-    }
-
-    state.keepSearchFocus = false;
-
-  }
-
-}
-
-
-
-function applySearchFilter() {
-
-  state.keepSearchFocus = true;
-
-  renderApp();
-
-}
-
-
-
-function bindEvents() {
-
-  const appRoot = document.getElementById("app");
-
-  if (!appRoot) return;
-
-  if (appRoot.dataset.bound === "true") {
-
-    return;
-
-  }
-
-  appRoot.dataset.bound = "true";
-
-  state.searchQuery = "";
-
-
-
-  appRoot.addEventListener("click", (event) => {
-
-    const target = event.target;
-
-    if (!(target instanceof HTMLElement)) return;
-
-
-
-    const eventButton = target.closest("[data-event-id]");
-
-    if (eventButton) {
-
-      const eventId = eventButton.getAttribute("data-event-id");
-
-      const selected = state.events.find((item) => item.id === eventId);
-
-      if (selected) {
-
-        state.selectedEvent = selected;
-
-        renderApp();
-
-      }
-
-      return;
-
-    }
-
-
-
-    const actionButton = target.closest("[data-action]");
-
-    if (!actionButton) return;
-
-    const action = actionButton.getAttribute("data-action");
-
-    const tier = actionButton.getAttribute("data-tier");
-
-
-
-    if (action === "toggle-theme") {
-
-      state.isDarkMode = !state.isDarkMode;
-
-      localStorage.setItem("darkMode", String(state.isDarkMode));
-
-      renderApp();
-
-      return;
-
-    }
-
-
-
-    if (action === "apply-search") {
-
-      applySearchFilter();
-
-      return;
-
-    }
-
-
-
-    if (action === "toggle-tier" && tier) {
-
-      state.expandedTiers[tier] = !state.expandedTiers[tier];
-
-      renderApp();
-
-      return;
-
-    }
-
-
-
-    if (action === "copy-all" && state.selectedEvent) {
-
-      const hasQuery = state.searchQuery.trim().length > 0;
-
-      const payload = hasQuery
-
-        ? formatAllStocksToTextFiltered(state.selectedEvent)
-
-        : formatAllStocksToText(state.selectedEvent);
-
-      if (hasQuery && payload.trim().length === 0) {
-
-        showToast("검색 결과가 없습니다.", "error");
-
-        return;
-
-      }
-
-      copyToClipboard(payload, "all");
-
-      return;
-
-    }
-
-
-
-    if (action === "copy-tier" && tier && state.selectedEvent) {
-
-      const category = state.selectedEvent.relatedStocks.find((cat) => cat.tier === tier);
-
-      if (category) {
-
-        const hasQuery = state.searchQuery.trim().length > 0;
-
-        const filteredStocks = hasQuery ? getFilteredStocks(category) : category.stocks;
-
-        if (hasQuery && filteredStocks.length === 0) {
-
-          showToast("검색 결과가 없습니다.", "error");
-
-          return;
-
-        }
-
-        if (!hasQuery && filteredStocks.length === 0) {
-
-          showToast("복사할 종목이 없습니다.", "error");
-
-          return;
-
-        }
-
-        const payload = hasQuery
-
-          ? filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n")
-
-          : formatStocksToText(category);
-
-        copyToClipboard(payload, tier);
-
-      }
-
-      return;
-
-    }
-
-
-
-    if (action === "open-contact") {
-
-      state.isContactModalOpen = true;
-
-      renderApp();
-
-      return;
-
-    }
-
-
-
-    if (action === "close-contact") {
-
-      state.isContactModalOpen = false;
-
-      renderApp();
-
-      return;
-
-    }
-
-  });
-
-
-
-  appRoot.addEventListener("submit", async (event) => {
-
-    const target = event.target;
-
-    if (target instanceof HTMLFormElement && target.id === "contact-form") {
-
-      event.preventDefault();
-
-      const form = target;
-
-      const submitBtn = form.querySelector("button[type=submit]");
-
-      const originalBtnText = submitBtn.textContent;
-
-      
-
-      try {
-
-        submitBtn.disabled = true;
-
-        submitBtn.textContent = "전송 중...";
-
-        
-
-        const formData = new FormData(form);
-
-        const response = await fetch(form.action, {
-
-          method: form.method,
-
-          body: formData,
-
-          headers: {
-
-            'Accept': 'application/json'
-
-          }
-
-        });
-
-        
-
-        if (response.ok) {
-
-          showToast("문의가 성공적으로 전송되었습니다!", "success");
-
-          form.reset();
-
-          state.isContactModalOpen = false;
-
-          renderApp();
-
-        } else {
-
-          showToast("전송에 실패했습니다. 다시 시도해주세요.", "error");
-
-        }
-
-      } catch (error) {
-
-        showToast("오류가 발생했습니다.", "error");
-
-      } finally {
-
-        submitBtn.disabled = false;
-
-        submitBtn.textContent = originalBtnText;
-
-      }
-
-    }
-
-  });
-
-  appRoot.addEventListener("input", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    if (target.id === "stock-search-input") {
-      if (state.isComposing || target.isComposing) {
-        state.searchQuery = target.value;
-        return;
-      }
-      state.searchQuery = target.value;
-    }
-  });
-
-  appRoot.addEventListener("compositionstart", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      state.isComposing = true;
-    }
-  });
-
-  appRoot.addEventListener("compositionend", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      state.isComposing = false;
-      state.searchQuery = target.value;
-    }
-  });
-
-  appRoot.addEventListener("keydown", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    if (target.id === "stock-search-input" && event.key === "Enter") {
-      applySearchFilter();
-    }
-  });
-}
-
-async function copyToClipboard(text, key) {
-  try {
-    if (navigator.clipboard && isSecureContext) {
-      try {
-        await navigator.clipboard.writeText(text);
-        setCopiedState(key);
-        showToast("클립보드에 복사되었습니다!", "success");
-        return;
-      } catch (clipboardError) {
-        // fallback
-      }
-    }
-    fallbackCopy(text, key);
-  } catch (error) {
-    showToast("복사에 실패했습니다.", "error");
-  }
-}
-
-function fallbackCopy(text, key) {
-  try {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.position = "fixed";
-    textarea.style.top = "0";
-    textarea.style.left = "0";
-    textarea.style.width = "2em";
-    textarea.style.height = "2em";
-    textarea.style.padding = "0";
-    textarea.style.border = "none";
-    textarea.style.outline = "none";
-    textarea.style.boxShadow = "none";
-    textarea.style.background = "transparent";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    const successful = document.execCommand("copy");
-    document.body.removeChild(textarea);
-    if (successful) {
-      setCopiedState(key);
-      showToast("클립보드에 복사되었습니다!", "success");
-    } else {
-      throw new Error("Copy failed");
-    }
-  } catch (error) {
-    showToast("복사에 실패했습니다.", "error");
-  }
-}
-
-function setCopiedState(key) {
-  state.copiedStates[key] = true;
-  renderApp();
-  setTimeout(() => {
-    state.copiedStates[key] = false;
-    renderApp();
-  }, 2000);
-}
-
-async function init() {
-  renderApp();
-  try {
-    const embeddedEvents = loadEventsFromEmbeddedData();
-    if (embeddedEvents && embeddedEvents.length > 0) {
-      state.events = embeddedEvents;
-      state.lastUpdateDate =
-        embeddedEvents.reduce((latest, event) => {
-          if (event.lastUpdated) {
-            return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
-          }
-          return latest;
-        }, null) || new Date();
-
-      const today = new Date();
-      const todayEvents = embeddedEvents.filter((event) => {
-        const eventDate = new Date(event.date);
-        return (
-          eventDate.getDate() === today.getDate() &&
-          eventDate.getMonth() === today.getMonth() &&
-          eventDate.getFullYear() === today.getFullYear()
-        );
-      });
-      if (todayEvents.length > 0) {
-        state.selectedEvent = todayEvents[0];
-      }
-
-      state.isLoading = false;
-      renderApp();
-      return;
-    }
-
-    const loadedEvents = await loadEventsFromJSON();
-    state.events = loadedEvents;
-    state.lastUpdateDate = loadedEvents.reduce((latest, event) => {
-      if (event.lastUpdated) {
-        return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
-      }
-      return latest;
-    }, null) || new Date();
-
-    const today = new Date();
-    const todayEvents = loadedEvents.filter((event) => {
-      const eventDate = new Date(event.date);
-      return (
-        eventDate.getDate() === today.getDate() &&
-        eventDate.getMonth() === today.getMonth() &&
-        eventDate.getFullYear() === today.getFullYear()
-      );
-    });
-    if (todayEvents.length > 0) {
-      state.selectedEvent = todayEvents[0];
-    }
-  } catch (error) {
-    state.loadError = "데이터 파일을 불러오지 못했습니다. app/data/uploaded 경로를 확인해주세요.";
-    state.events = [];
-  } finally {
-    state.isLoading = false;
-    renderApp();
-  }
-}
-
-init();
