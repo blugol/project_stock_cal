@@ -13,7 +13,7 @@ const state = {
   searchQuery: "",
   keepSearchFocus: false,
   isComposing: false,
-  isContactModalOpen: false, // 제휴 문의 모달 상태 추가
+  isContactModalOpen: false,
 };
 
 const indicatorGuides = {
@@ -449,9 +449,11 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        ${actualValue !== null
-          ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
-          : `<p class="text-lg font-bold text-gray-400">미발표</p>`}
+        ${
+          actualValue !== null
+            ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
+            : `<p class="text-lg font-bold text-gray-400">미발표</p>`
+        }
       </div>
     `);
   }
@@ -487,25 +489,20 @@ function renderSelectedEvent() {
           <span class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-gray-900"}">
             ${escapeHtml(event.title)}
           </span>
-          ${guide
-            ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
+          ${guide ? `<span class="text-sm font-medium px-2 py-1 rounded ${state.isDarkMode ? "bg-green-900/30 text-green-300" : "bg-green-100 text-green-800"}">
                   기준: ${escapeHtml(guide.basePoint)}
-                </span>`
-            : ""
-          }
+                </span>` : ""}
           <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
             ${formatDateKR(event.date)}
           </span>
         </div>
       </div>
-      ${hasStats
-        ? `
+      ${hasStats ? `
             <div class="p-4">
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                 ${statsCards.join("")}
               </div>
-              ${event.base_guide
-                ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
+              ${event.base_guide ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-blue-900/20 border-blue-700" : "bg-blue-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-blue-300" : "text-blue-900"}">
                         <span>💡</span>
                         <span>해석 가이드</span>
@@ -513,11 +510,8 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-blue-200" : "text-blue-800"}">
                         ${escapeHtml(event.base_guide)}
                       </p>
-                    </div>`
-                : ""
-              }
-              ${event.tooltip
-                ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
+                    </div>` : ""}
+              ${event.tooltip ? `<div class="p-4 rounded-lg border mb-3 ${state.isDarkMode ? "bg-gray-700/50 border-gray-600" : "bg-gray-50 border-gray-800"}">
                       <h4 class="font-semibold mb-2 flex items-center gap-2 ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">
                         <span>ℹ️</span>
                         <span>상세 정보</span>
@@ -525,11 +519,8 @@ function renderSelectedEvent() {
                       <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
                         ${escapeHtml(event.tooltip)}
                       </p>
-                    </div>`
-                : ""
-              }
-              ${guide
-                ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
+                    </div>` : ""}
+              ${guide ? `<div class="p-4 rounded-lg border ${state.isDarkMode ? "bg-green-900/20 border-green-700" : "bg-green-50 border-gray-800"}">
                       <h4 class="font-semibold mb-3 flex items-center gap-2 ${state.isDarkMode ? "text-green-300" : "text-green-900"}">
                         <span>📊</span>
                         <span>지표 기준치 가이드</span>
@@ -548,9 +539,7 @@ function renderSelectedEvent() {
                           <span class="${state.isDarkMode ? "text-blue-200" : "text-blue-800"}>${escapeHtml(guide.lowInterpretation)}</span>
                         </div>
                       </div>
-                    </div>`
-                : ""
-              }
+                    </div>` : ""}
             </div>
           `
           : `
@@ -603,29 +592,12 @@ function renderCalendar() {
       const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
       const dayOfWeek = index % 7;
       return `
-        <div class="border-2 rounded-lg p-1.5 flex flex-col transition-colors ${isToday
-          ? state.isDarkMode
-            ? "bg-blue-900/30 border-blue-500 shadow-md ring-1 ring-blue-500/50"
-            : "bg-blue-50 border-blue-400 shadow-md ring-1 ring-blue-400/50"
-          : state.isDarkMode
-          ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800"
-          : "bg-white border-gray-200 hover:bg-gray-50 shadow-sm"
-        }" style="min-height:${minCellHeight}px">
+        <div class="border-2 rounded-lg p-1.5 flex flex-col transition-colors ${isToday ? state.isDarkMode ? "bg-blue-900/30 border-blue-500 shadow-md ring-1 ring-blue-500/50" : "bg-blue-50 border-blue-400 shadow-md ring-1 ring-blue-400/50" : state.isDarkMode ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800" : "bg-white border-gray-200 hover:bg-gray-50 shadow-sm"}" style="min-height:${minCellHeight}px">
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-sm font-bold px-1.5 py-0.5 rounded ${dayOfWeek === 0
-              ? "text-red-500"
-              : dayOfWeek === 6
-              ? "text-blue-500"
-              : state.isDarkMode
-              ? "text-gray-300"
-              : "text-gray-700"
-            } ${isToday ? (state.isDarkMode ? "bg-blue-800/50" : "bg-blue-100") : ""}">
+            <span class="text-sm font-bold px-1.5 py-0.5 rounded ${dayOfWeek === 0 ? "text-red-500" : dayOfWeek === 6 ? "text-blue-500" : state.isDarkMode ? "text-gray-300" : "text-gray-700"} ${isToday ? (state.isDarkMode ? "bg-blue-800/50" : "bg-blue-100") : ""}">
               ${day}
             </span>
-            ${dayEvents.length
-              ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-100 text-slate-600"}">${dayEvents.length}</span>`
-              : ""
-            }
+            ${dayEvents.length ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-100 text-slate-600"}">${dayEvents.length}</span>` : ""}
           </div>
           <div class="flex-1 space-y-1 overflow-y-auto overflow-x-hidden scrollbar-slim px-0.5 pb-0.5">
             ${dayEvents
@@ -635,12 +607,7 @@ function renderCalendar() {
                 return `
                   <button
                     data-event-id="${event.id}"
-                    class="w-full text-left px-2 py-1.5 rounded text-xs transition-all duration-200 flex items-center gap-1.5 border group ${isSelected
-                      ? "bg-blue-600 text-white shadow-md border-blue-500 z-10 relative"
-                      : state.isDarkMode
-                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600 hover:border-gray-500"
-                      : "bg-white hover:bg-slate-50 text-gray-700 border-gray-200 hover:border-gray-300 shadow-sm"
-                    }"
+                    class="w-full text-left px-2 py-1.5 rounded text-xs transition-all duration-200 flex items-center gap-1.5 border group ${isSelected ? "bg-blue-600 text-white shadow-md border-blue-500 z-10 relative" : state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600 hover:border-gray-500" : "bg-white hover:bg-slate-50 text-gray-700 border-gray-200 hover:border-gray-300 shadow-sm"}"
                     style="${isSelected ? "" : `border-left-width: 3px; border-left-color: ${importanceColor};`}"
                     title="${escapeHtml(event.title)}"
                   >
@@ -811,21 +778,16 @@ function renderStockCategory(category) {
           <i data-lucide="${expanded ? "chevron-up" : "chevron-down"}" class="size-5"></i>
         </div>
       </button>
-      ${expanded
-        ? `
+      ${expanded ? `
             <div class="p-4 ${state.isDarkMode ? "bg-gray-800/50" : "bg-white"}">
               <div class="space-y-2 max-h-96 overflow-y-auto scrollbar-slim">
-                ${filteredStocks.length === 0
-                  ? `<div class="text-sm text-center py-6 ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
+                ${filteredStocks.length === 0 ? `<div class="text-sm text-center py-6 ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">
                         검색 결과가 없습니다.
                       </div>`
                   : filteredStocks
                       .map(
                         (stock, idx) => `
-                            <div class="p-3 rounded-lg border-2 transition-colors ${state.isDarkMode
-                              ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                              : "bg-gray-50 border-gray-400 hover:bg-white shadow-md"
-                            }">
+                            <div class="p-3 rounded-lg border-2 transition-colors ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-50 border-gray-400 hover:bg-white shadow-md"}">
                               <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1 min-w-0">
                                   <div class="flex items-center gap-2 mb-1">
@@ -906,17 +868,11 @@ function renderRelatedStocks() {
               type="text"
               value="${escapeHtml(state.searchQuery)}"
               placeholder="종목명/코드/섹터 검색"
-              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode
-                ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400"
-                : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
-              }"
+              class="w-full max-w-md rounded-md border px-3 py-1.5 text-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 placeholder:text-gray-400" : "bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"}"
             />
             <button
               data-action="apply-search"
-              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode
-                ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600"
-                : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"
-              }"
+              class="px-3 py-1.5 rounded-md text-sm font-semibold border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600" : "bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200"}"
             >
               검색 적용
             </button>
@@ -937,7 +893,7 @@ function renderContactModal() {
   if (!state.isContactModalOpen) return "";
 
   return `
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" onclick="if(event.target === this) document.querySelector('[data-action=close-contact]').click()">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity" data-action="close-contact-overlay">
       <div class="w-full max-w-md rounded-xl shadow-2xl overflow-hidden ${state.isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}">
         <div class="p-6">
           <div class="flex items-center justify-between mb-6">
@@ -1189,18 +1145,14 @@ function bindEvents() {
       state.isDarkMode = !state.isDarkMode;
       localStorage.setItem("darkMode", String(state.isDarkMode));
       
+      // 즉시 UI 반영
       if (state.isDarkMode) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
       
-      // 즉각적인 리렌더링으로 인한 버튼 유실 방지를 위해 지연 처리 (디바운싱 유사 효과)
-      // 사용자가 버튼을 연타할 때마다 매번 DOM을 갈아엎지 않도록 함
-      if (window.themeUpdateTimer) clearTimeout(window.themeUpdateTimer);
-      window.themeUpdateTimer = setTimeout(() => {
-        renderApp();
-      }, 100);
+      renderApp();
       return;
     }
 
@@ -1255,7 +1207,7 @@ function bindEvents() {
       return;
     }
 
-    if (action === "close-contact") {
+    if (action === "close-contact" || action === "close-contact-overlay") {
       state.isContactModalOpen = false;
       renderApp();
       return;
