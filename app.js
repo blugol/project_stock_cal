@@ -1006,6 +1006,13 @@ function renderApp() {
     ? `<div class="mb-4 text-center text-sm text-red-600">${escapeHtml(state.loadError)}</div>`
     : "";
 
+  const todayDate = new Date().toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  });
+
   app.innerHTML = `
     <div class="w-full">
       <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
@@ -1016,7 +1023,12 @@ function renderApp() {
                 <i data-lucide="trending-up" class="size-8 text-white"></i>
               </div>
               <div>
-                <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
+                  <span class="text-sm font-medium px-2 py-1 rounded-md ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
+                    ${todayDate}
+                  </span>
+                </div>
                 <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">경제 일정과 관련된 종목 한눈에보기</p>
               </div>
             </div>
