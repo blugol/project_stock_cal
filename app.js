@@ -574,27 +574,50 @@ function renderCalendar() {
     0,
     ...Array.from({ length: daysInMonth }, (_, i) => eventsForDate(i + 1).length)
   );
-  const minCellHeight = Math.max(80, 50 + maxEventsInMonth * 18);
+  // 최소 높이 조정: 이벤트 개수에 비례하지만 너무 작지 않게
+  const minCellHeight = Math.max(100, 40 + maxEventsInMonth * 22);
   const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
   const calendarCells = calendarDays
     .map((day, index) => {
       if (day === null) {
-        return `<div style="height:${minCellHeight}px"></div>`;
+        return `<div class="border-transparent" style="min-height:${minCellHeight}px"></div>`;
       }
       const dayEvents = eventsForDate(day);
       const today = new Date();
       const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
       const dayOfWeek = index % 7;
       return `
-        <div class="border-2 rounded-lg p-2 flex flex-col ${isToday ? (state.isDarkMode ? "bg-blue-950 border-blue-400 shadow-xl ring-2 ring-blue-400/80" : "bg-yellow-50 border-yellow-400 shadow-xl ring-2 ring-yellow-400/70") : (state.isDarkMode ? "border-gray-600 bg-gray-850 shadow-md" : "border-gray-800 bg-stone-100 shadow-md")}" style="height:${minCellHeight}px">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-sm font-bold ${dayOfWeek === 0 ? "text-red-600" : dayOfWeek === 6 ? "text-blue-600" : state.isDarkMode ? "text-gray-300" : "text-slate-900"}">
+        <div class="border rounded-lg p-1.5 flex flex-col transition-colors ${
+          isToday
+            ? state.isDarkMode
+              ? "bg-blue-900/30 border-blue-500 shadow-md ring-1 ring-blue-500/50"
+              : "bg-blue-50 border-blue-400 shadow-md ring-1 ring-blue-400/50"
+            : state.isDarkMode
+            ? "bg-gray-800/50 border-gray-700 hover:bg-gray-800"
+            : "bg-white border-gray-200 hover:bg-gray-50 shadow-sm"
+        }" style="min-height:${minCellHeight}px">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-sm font-bold px-1.5 py-0.5 rounded ${
+              dayOfWeek === 0
+                ? "text-red-500"
+                : dayOfWeek === 6
+                ? "text-blue-500"
+                : state.isDarkMode
+                ? "text-gray-300"
+                : "text-gray-700"
+            } ${isToday ? (state.isDarkMode ? "bg-blue-800/50" : "bg-blue-100") : ""}">
               ${day}
             </span>
-            ${dayEvents.length ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-700 text-white"}">${dayEvents.length}</span>` : ""}
+            ${
+              dayEvents.length
+                ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                    state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-slate-100 text-slate-600"
+                  }">${dayEvents.length}</span>`
+                : ""
+            }
           </div>
-          <div class="flex-1 space-y-1 overflow-y-auto overflow-x-hidden scrollbar-slim">
+          <div class="flex-1 space-y-1 overflow-y-auto overflow-x-hidden scrollbar-slim px-0.5 pb-0.5">
             ${dayEvents
               .map((event) => {
                 const isSelected = state.selectedEvent && state.selectedEvent.id === event.id;
@@ -602,13 +625,23 @@ function renderCalendar() {
                 return `
                   <button
                     data-event-id="${event.id}"
-                    class="w-full text-left px-2 py-1.5 rounded-md text-xs transition-all duration-200 flex items-center gap-1 hover:scale-105 hover:shadow-lg hover:z-10 font-semibold border ${isSelected ? "bg-blue-600 text-white shadow-xl border-blue-400" : state.isDarkMode ? "hover:bg-opacity-80 hover:brightness-125" : "hover:bg-opacity-100 hover:brightness-105 shadow"}"
-                    style="${isSelected ? "" : `background-color:${importanceColor}${state.isDarkMode ? "40" : "50"};color:${state.isDarkMode ? importanceColor : "#1e293b"};border-color:${importanceColor}${state.isDarkMode ? "60" : "80"};font-weight:${state.isDarkMode ? "500" : "600"};`}"
+                    class="w-full text-left px-2 py-1.5 rounded text-xs transition-all duration-200 flex items-center gap-1.5 border group ${
+                      isSelected
+                        ? "bg-blue-600 text-white shadow-md border-blue-500 z-10 relative"
+                        : state.isDarkMode
+                        ? "bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600 hover:border-gray-500"
+                        : "bg-white hover:bg-slate-50 text-gray-700 border-gray-200 hover:border-gray-300 shadow-sm"
+                    }"
+                    style="${
+                      isSelected
+                        ? ""
+                        : `border-left-width: 3px; border-left-color: ${importanceColor};`
+                    }"
                     title="${escapeHtml(event.title)}"
                   >
-                    <span class="truncate flex-1">${escapeHtml(event.title)}</span>
-                    <span class="text-[10px] font-bold px-1 py-0.5 rounded ${isSelected ? "text-white/90 bg-white/20" : state.isDarkMode ? "opacity-80" : "bg-slate-800 text-white"}">
-                      ${formatTimeKR(new Date(event.date))}
+                    <span class="truncate flex-1 font-medium">${escapeHtml(event.title)}</span>
+                    <span class="text-[10px] font-mono opacity-70 whitespace-nowrap">
+                      ${formatTimeKR(new Date(event.date)).substring(0, 5)}
                     </span>
                   </button>
                 `;
@@ -621,43 +654,52 @@ function renderCalendar() {
     .join("");
 
   return `
-    <div class="rounded-xl border-2 p-4 ${state.isDarkMode ? "bg-gray-800 border-gray-700 shadow-lg" : "bg-stone-200 border-gray-800 shadow-xl"}">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="font-bold text-lg ${state.isDarkMode ? "text-white" : "text-slate-900"}>${year}년 ${monthNames[month]}</h2>
-        <div class="flex gap-2">
-          <button onclick="goToPrevMonth()" class="border rounded-md px-2 py-1 ${state.isDarkMode ? "border-gray-600 text-gray-200" : "border-gray-800 text-gray-700"}">
-            <i data-lucide="chevron-left" class="size-4"></i>
+    <div class="rounded-xl border shadow-lg overflow-hidden ${state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}">
+      <div class="p-4 border-b ${state.isDarkMode ? "border-gray-700" : "border-gray-100"} flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <button onclick="goToPrevMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
+            <i data-lucide="chevron-left" class="size-5"></i>
           </button>
-          <button onclick="goToNextMonth()" class="border rounded-md px-2 py-1 ${state.isDarkMode ? "border-gray-600 text-gray-200" : "border-gray-800 text-gray-700"}">
-            <i data-lucide="chevron-right" class="size-4"></i>
+          <h2 class="font-bold text-xl ${state.isDarkMode ? "text-white" : "text-gray-900"} min-w-[140px] text-center">${year}년 ${monthNames[month]}</h2>
+          <button onclick="goToNextMonth()" class="p-2 rounded-lg transition-colors border ${state.isDarkMode ? "border-gray-600 hover:bg-gray-700 text-gray-300" : "border-gray-200 hover:bg-gray-50 text-gray-600"}">
+            <i data-lucide="chevron-right" class="size-5"></i>
           </button>
         </div>
-      </div>
-      <div class="text-center mb-4">
-        <p class="text-xs ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">일정을 클릭하면 관련 종목을 볼 수 있습니다.</p>
-      </div>
-      <div class="grid grid-cols-7 gap-2">
-        ${days
-          .map((day, index) => {
-            const textColor =
-              index === 0 ? "text-red-600" : index === 6 ? "text-blue-600" : state.isDarkMode ? "text-gray-300" : "text-slate-700";
-            return `<div class="text-center font-bold text-sm py-2 ${textColor}">${day}</div>`;
-          })
-          .join("")}
-        ${calendarCells}
-      </div>
-      <div class="mt-3 flex flex-wrap gap-1.5">
-        <div class="flex items-center gap-1">
-          <div class="w-2 h-2 rounded-full bg-red-500"></div>
-          <span class="text-[11px] ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">높은 중요도</span>
+        
+        <div class="flex flex-wrap items-center justify-center gap-3 text-xs">
+          <div class="flex items-center gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+            <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">높음</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+            <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">보통</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+            <span class="${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">낮음</span>
+          </div>
         </div>
-        <div class="flex items-center gap-1">
-          <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
-          <span class="text-[11px] ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">중간 중요도</span>
+      </div>
+      
+      <div class="p-4 bg-opacity-50 ${state.isDarkMode ? "bg-gray-900/30" : "bg-gray-50/50"}">
+        <div class="text-center mb-4 hidden sm:block">
+          <p class="text-xs font-medium ${state.isDarkMode ? "text-gray-500" : "text-gray-400"}">
+            <i data-lucide="mouse-pointer-2" class="size-3 inline mr-1"></i>
+            일정을 클릭하여 상세 정보와 관련 종목을 확인하세요
+          </p>
         </div>
-        <div class="flex items-center gap-1">
-          <div class="w-2 h-2 rounded-full bg-green-500"></div>
-          <span class="text-[11px] ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">낮은 중요도</span>
+        <div class="grid grid-cols-7 gap-2 mb-2">
+          ${days
+            .map((day, index) => {
+              const textColor =
+                index === 0 ? "text-red-500" : index === 6 ? "text-blue-500" : state.isDarkMode ? "text-gray-400" : "text-gray-500";
+              return `<div class="text-center font-bold text-xs py-1 ${textColor}">${day}</div>`;
+            })
+            .join("")}
+        </div>
+        <div class="grid grid-cols-7 gap-2">
+          ${calendarCells}
         </div>
       </div>
     </div>
@@ -841,7 +883,7 @@ function renderRelatedStocks() {
             class="px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${state.isDarkMode ? "bg-gray-700 hover:bg-gray-600 text-gray-200" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}"
           >
             <i data-lucide="${state.copiedStates.all ? "check-check" : "copy"}" class="size-4"></i>
-            <span class="text-sm font-medium">${state.copiedStates.all ? "복사 완료" : "전체 복사"}</span>
+            <span>${state.copiedStates.all ? "복사 완료" : "전체 복사"}</span>
           </button>
         </div>
         <div class="flex items-center gap-3">
