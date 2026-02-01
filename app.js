@@ -9,8 +9,10 @@ const state = {
   lastUpdateDate: null,
   currentDate: new Date(),
   expandedTiers: { major: true, mid: true, small: true },
+  copiedStates: {}, // 명시적으로 빈 객체로 초기화
   searchQuery: "",
   isContactModalOpen: false,
+  isPrivacyModalOpen: false,
 };
 
 // UI 상태 업데이트를 위한 헬퍼 (리렌더링 방지용)
@@ -1259,62 +1261,71 @@ function renderApp() {
 
     }
 
-    if (state.keepSearchFocus) {
+        if (state.keepSearchFocus) {
 
-      const searchInput = document.getElementById("stock-search-input");
+          const searchInput = document.getElementById("stock-search-input");
 
-      if (searchInput && searchInput instanceof HTMLInputElement) {
+          if (searchInput && searchInput instanceof HTMLInputElement) {
 
-        searchInput.focus();
+            searchInput.focus();
 
-        const length = searchInput.value.length;
+            const length = searchInput.value.length;
 
-        searchInput.setSelectionRange(length, length);
+            searchInput.setSelectionRange(length, length);
+
+          }
+
+          // state.keepSearchFocus = false; // 더 이상 상태에 저장하지 않음
+
+        }
 
       }
 
-      state.keepSearchFocus = false;
+      
 
-    }
+      function applySearchFilter() {
 
-  }
-  
+        // state.keepSearchFocus = true; // 더 이상 상태에 저장하지 않음
 
-  function applySearchFilter() {
+        renderApp();
 
-    state.keepSearchFocus = true;
+      }
 
-    renderApp();
+      
 
-  }
-  
+      let isAppBound = false;
 
-  let isAppBound = false;
-
-  function bindEvents() {
-
-    if (isAppBound) return;
-
-    const appRoot = document.getElementById("app");
-
-    if (!appRoot) return;
     
 
-    isAppBound = true;
+      function bindEvents() {
 
-    state.searchQuery = "";
-  
+        if (isAppBound) return;
 
-    appRoot.addEventListener("click", (event) => {
-    let target = event.target;
+        const appRoot = document.getElementById("app");
+
+        if (!appRoot) return;
+
+        
+
+        isAppBound = true;
+
+        state.searchQuery = ""; // 검색어 상태는 유지
+
     
-    // 텍스트 노드 클릭 대응
 
-    if (target && target.nodeType === 3) {
+        appRoot.addEventListener("click", (event) => {
 
-      target = target.parentNode;
+        let target = event.target;
 
-    }
+        
+
+        // 텍스트 노드 클릭 대응
+
+        if (target && target.nodeType === 3) {
+
+          target = target.parentNode;
+
+        }
 
 
 
@@ -1683,73 +1694,131 @@ function renderApp() {
 
 
 
-  appRoot.addEventListener("input", (event) => {
+    appRoot.addEventListener("input", (event) => {
 
-    const target = event.target;
 
-    if (!(target instanceof HTMLInputElement)) return;
 
-    if (target.id === "stock-search-input") {
+      const target = event.target;
 
-      if (state.isComposing || target.isComposing) {
+
+
+      if (!(target instanceof HTMLInputElement)) return;
+
+
+
+      if (target.id === "stock-search-input") {
+
+
+
+        // state.isComposing이나 keepSearchFocus 대신 직접 처리
+
+
 
         state.searchQuery = target.value;
 
-        return;
+
+
+        // 검색 필터는 apply-search 버튼 클릭 또는 Enter 키로만 적용
+
+
 
       }
 
-      state.searchQuery = target.value;
 
-    }
 
-  });
+    });
 
 
 
-  appRoot.addEventListener("compositionstart", (event) => {
-
-    const target = event.target;
-
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-
-      state.isComposing = true;
-
-    }
-
-  });
+  
 
 
 
-  appRoot.addEventListener("compositionend", (event) => {
-
-    const target = event.target;
-
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-
-      state.isComposing = false;
-
-      state.searchQuery = target.value;
-
-    }
-
-  });
+    appRoot.addEventListener("compositionstart", (event) => {
 
 
 
-  appRoot.addEventListener("keydown", (event) => {
+      const target = event.target;
 
-    const target = event.target;
 
-    if (!(target instanceof HTMLInputElement)) return;
 
-    if (target.id === "stock-search-input" && event.key === "Enter") {
+      if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
 
-      applySearchFilter();
 
-    }
 
-  });
+        // Composition 이벤트는 UI 상태에 영향을 주지 않으므로 상태 저장 제거
+
+
+
+      }
+
+
+
+    });
+
+
+
+  
+
+
+
+    appRoot.addEventListener("compositionend", (event) => {
+
+
+
+      const target = event.target;
+
+
+
+      if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
+
+
+
+        // Composition 이벤트는 UI 상태에 영향을 주지 않으므로 상태 저장 제거
+
+
+
+        state.searchQuery = target.value;
+
+
+
+      }
+
+
+
+    });
+
+
+
+  
+
+
+
+    appRoot.addEventListener("keydown", (event) => {
+
+
+
+      const target = event.target;
+
+
+
+      if (!(target instanceof HTMLInputElement)) return;
+
+
+
+      if (target.id === "stock-search-input" && event.key === "Enter") {
+
+
+
+        applySearchFilter();
+
+
+
+      }
+
+
+
+    });
 
 }
 
