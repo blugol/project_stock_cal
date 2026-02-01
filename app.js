@@ -449,10 +449,7 @@ function renderSelectedEvent() {
     statsCards.push(`
       <div class="p-3 rounded-lg border shadow-sm ${state.isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-800"}">
         <p class="text-xs mb-1 ${state.isDarkMode ? "text-gray-400" : "text-gray-500"}">실제 발표</p>
-        ${actualValue !== null
-            ? `<p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>`
-            : `<p class="text-lg font-bold text-gray-400">미발표</p>`
-        }
+        <p class="text-lg font-bold ${actualColor}">${escapeHtml(actualValue)}${escapeHtml(event.unit || "")}</p>
       </div>
     `);
   }
@@ -1009,7 +1006,7 @@ function renderApp() {
   app.innerHTML = `
     <div class="w-full">
       <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto px-4 relative">
           <div class="flex items-center justify-between py-4">
             <div class="flex items-center gap-3">
               <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg">
@@ -1025,29 +1022,35 @@ function renderApp() {
                 <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">경제 일정과 관련된 종목 한눈에보기</p>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <button
-                data-action="open-contact"
-                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
-              >
-                <i data-lucide="mail" class="size-4"></i>
-                <span>제휴 문의</span>
-              </button>
-              <button
-                data-action="toggle-theme"
-                class="transition-colors border rounded-md p-2 ${state.isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400" : "bg-white hover:bg-gray-100"}"
-                aria-label="다크 모드 토글"
-              >
-                <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
-              </button>
+            
+            <div class="flex items-center gap-3">
               <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
                 <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
                   <i data-lucide="calendar" class="size-4"></i>
                   <span>일정 캘린더</span>
                 </div>
               </div>
+              <button
+                data-action="open-contact"
+                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
+                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
+              >
+                <i data-lucide="mail" class="size-4"></i>
+                <span>제휴 문의</span>
+              </button>
             </div>
           </div>
+          
+          <button
+            data-action="toggle-theme"
+            class="absolute top-1/2 -translate-y-1/2 right-4 transition-colors border rounded-md p-2 ${state.isDarkMode
+                ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
+                : "bg-white hover:bg-gray-100"}"
+            aria-label="다크 모드 토글"
+          >
+            <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
+          </button>
         </div>
       </div>
       <div class="container mx-auto px-4 py-8">
@@ -1252,14 +1255,6 @@ function bindEvents() {
       applySearchFilter();
     }
   });
-
-  appRoot.addEventListener("blur", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      applySearchFilter();
-    }
-  }, true);
-
 }
 
 async function copyToClipboard(text, key) {
