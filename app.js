@@ -15,12 +15,7 @@ const state = {
   isComposing: false,
   isContactModalOpen: false,
   isPrivacyModalOpen: false,
-  isAboutModalOpen: false, // 사이트 소개 모달 상태 추가
-};
-
-// UI 상태 업데이트를 위한 헬퍼 (리렌더링 방지용)
-const uiState = {
-  copyTimeout: null
+  isAboutModalOpen: false,
 };
 
 const indicatorGuides = {
@@ -286,7 +281,6 @@ async function fetchJson(path) {
   return response.json();
 }
 
-// file:// 환경에서도 자동 로드를 위해 JS 임베드 데이터만 사용합니다.
 function loadEventsFromEmbeddedData() {
   if (typeof __UPLOADED_EVENTS__ === "undefined" || !Array.isArray(__UPLOADED_EVENTS__)) {
     return null;
@@ -570,7 +564,6 @@ function renderCalendar() {
     0,
     ...Array.from({ length: daysInMonth }, (_, i) => eventsForDate(i + 1).length)
   );
-  // 최소 높이 조정: 이벤트 개수에 비례하지만 너무 작지 않게
   const minCellHeight = Math.max(100, 40 + maxEventsInMonth * 22);
   const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
@@ -1517,3 +1510,144 @@ function bindEvents() {
 }
 
 // ... (copyToClipboardWithoutRender, fallbackCopySilent, init functions are same as before)
+async function copyToClipboardWithoutRender(text, key, buttonElement) {
+  try {
+    let successful = false;
+    if (navigator.clipboard && isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        successful = true;
+      } catch (clipboardError) {
+        // fallback
+      }
+    }
+    
+    if (!successful) {
+      successful = fallbackCopySilent(text);
+    }
+
+    if (successful) {
+      showToast("클립보드에 복사되었습니다!", "success");
+      
+      if (buttonElement) {
+        const originalHtml = buttonElement.innerHTML;
+        const width = buttonElement.offsetWidth;
+        buttonElement.style.width = `${width}px`; 
+        
+        const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-check size-4${key === 'all' ? '' : ' size-5'}"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 8"/></svg>`;
+        
+        if (key === 'all') {
+             buttonElement.innerHTML = `${checkIcon}<span>복사 완료</span>`;
+        } else {
+             const textDiv = buttonElement.querySelector('.text-left h3');
+             if (textDiv) textDiv.textContent = "복사 완료";
+             const iconDiv = buttonElement.querySelector('div:first-child');
+             if (iconDiv) iconDiv.innerHTML = checkIcon;
+        }
+
+        setTimeout(() => {
+          buttonElement.innerHTML = originalHtml;
+          buttonElement.style.width = '';
+          if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+          }
+        }, 2000);
+      }
+    } else {
+      throw new Error("Copy failed");
+    }
+  } catch (error) {
+    showToast("복사에 실패했습니다.", "error");
+  }
+}
+
+function fallbackCopySilent(text) {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.width = "2em";
+    textarea.style.height = "2em";
+    textarea.style.padding = "0";
+    textarea.style.border = "none";
+    textarea.style.outline = "none";
+    textarea.style.boxShadow = "none";
+    textarea.style.background = "transparent";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const successful = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return successful;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function init() {
+  renderApp();
+  try {
+    const embeddedEvents = loadEventsFromEmbeddedData();
+    if (embeddedEvents && embeddedEvents.length > 0) {
+      state.events = embeddedEvents;
+      state.lastUpdateDate =
+        embeddedEvents.reduce((latest, event) => {
+          if (event.lastUpdated) {
+            return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
+          }
+          return latest;
+        }, null) || new Date();
+
+      const today = new Date();
+      const todayEvents = embeddedEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+        return (
+          eventDate.getDate() === today.getDate() &&
+          eventDate.getMonth() === today.getMonth() &&
+          eventDate.getFullYear() === today.getFullYear()
+        );
+      });
+      if (todayEvents.length > 0) {
+        state.selectedEvent = todayEvents[0];
+      }
+
+      state.isLoading = false;
+      renderApp();
+      return;
+    }
+
+    const loadedEvents = await loadEventsFromJSON();
+    state.events = loadedEvents;
+    state.lastUpdateDate = loadedEvents.reduce((latest, event) => {
+      if (event.lastUpdated) {
+        return !latest || event.lastUpdated > latest ? event.lastUpdated : latest;
+      }
+      return latest;
+    }, null) || new Date();
+
+    const today = new Date();
+    const todayEvents = loadedEvents.filter((event) => {
+      const eventDate = new Date(event.date);
+      return (
+        eventDate.getDate() === today.getDate() &&
+        eventDate.getMonth() === today.getMonth() &&
+        eventDate.getFullYear() === today.getFullYear()
+      );
+    });
+    if (todayEvents.length > 0) {
+      state.selectedEvent = todayEvents[0];
+    }
+  } catch (error) {
+    state.loadError = "데이터 파일을 불러오지 못했습니다. app/data/uploaded 경로를 확인해주세요.";
+    state.events = [];
+  } finally {
+    state.isLoading = false;
+    renderApp();
+    bindEvents();
+  }
+}
+
+init();
