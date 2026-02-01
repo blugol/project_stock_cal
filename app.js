@@ -1128,7 +1128,8 @@ function bindEvents() {
 
   appRoot.addEventListener("click", (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    // SVG 요소 클릭 시 HTMLElement가 아닐 수 있으므로 체크 완화
+    if (!target) return;
 
     const eventButton = target.closest("[data-event-id]");
     if (eventButton) {
@@ -1144,6 +1145,7 @@ function bindEvents() {
     const actionButton = target.closest("[data-action]");
     const overlay = target.closest("[data-action='close-contact-overlay']");
     
+    // 오버레이 클릭 처리
     if (overlay && target === overlay) {
        state.isContactModalOpen = false;
        renderApp();
