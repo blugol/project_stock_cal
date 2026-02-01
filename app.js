@@ -971,291 +971,510 @@ function renderFooter() {
 }
 
 function renderApp() {
+
   const app = document.getElementById("app");
+
   if (!app) return;
 
+
+
   if (state.isDarkMode) {
+
     document.documentElement.classList.add("dark");
+
   } else {
+
     document.documentElement.classList.remove("dark");
+
   }
 
+
+
   const backgroundClass = state.isDarkMode
+
     ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+
     : "bg-gradient-to-br from-stone-400 via-neutral-400 to-stone-400";
+
+
 
   const headerBg = state.isDarkMode ? "bg-gray-800 border-gray-700" : "bg-stone-50 border-gray-800 shadow-md";
 
+
+
   app.className = `min-h-screen transition-colors duration-300 ${backgroundClass}`;
 
+
+
   const loadingBanner = state.isLoading
+
     ? `<div class="mb-4 text-center text-sm ${state.isDarkMode ? "text-gray-300" : "text-gray-700"}">데이터를 불러오는 중입니다...</div>`
+
     : "";
+
+
 
   const errorBanner = state.loadError
+
     ? `<div class="mb-4 text-center text-sm text-red-600">${escapeHtml(state.loadError)}</div>`
+
     : "";
 
+
+
   const todayDate = new Date().toLocaleDateString("ko-KR", {
+
     year: "numeric",
+
     month: "long",
+
     day: "numeric",
+
     weekday: "long",
+
   });
+
+
 
   app.innerHTML = `
+
     <div class="w-full">
+
       <div class="border-b shadow-sm sticky top-0 z-10 transition-colors ${headerBg}">
-        <div class="container mx-auto px-4 relative">
+
+        <div class="container mx-auto px-4">
+
           <div class="flex items-center justify-between py-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg">
+
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+
+              <div class="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-lg shrink-0">
+
                 <i data-lucide="trending-up" class="size-8 text-white"></i>
+
               </div>
-              <div>
+
+              <div class="min-w-0">
+
                 <div class="flex items-center gap-2 flex-wrap">
+
                   <h1 class="font-bold text-2xl ${state.isDarkMode ? "text-white" : "text-gray-900"}">경제일정 & 종목확인</h1>
-                  <span class="text-sm font-medium px-2 py-1 rounded-md ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
+
+                  <span class="text-sm font-medium px-2 py-1 rounded-md shrink-0 ${state.isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"}">
+
                     ${todayDate}
+
                   </span>
+
                 </div>
-                <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"}">경제 일정과 관련된 종목 한눈에보기</p>
+
+                <p class="text-sm ${state.isDarkMode ? "text-gray-400" : "text-gray-600"} truncate">경제 일정과 관련된 종목 한눈에보기</p>
+
               </div>
+
             </div>
+
             
-            <div class="flex items-center gap-3">
+
+            <div class="flex items-center gap-3 shrink-0 ml-2">
+
               <div class="hidden sm:block px-3 py-2 rounded-md ${state.isDarkMode ? "bg-gray-700" : "bg-gray-100"}">
+
                 <div class="flex items-center gap-2 text-sm font-medium ${state.isDarkMode ? "text-gray-200" : "text-gray-800"}">
+
                   <i data-lucide="calendar" class="size-4"></i>
+
                   <span>일정 캘린더</span>
+
                 </div>
+
               </div>
+
               <button
+
                 data-action="open-contact"
-                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${state.isDarkMode
+
+                class="hidden md:flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors border ${
+
+                  state.isDarkMode
+
                     ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}"
+
+                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+
+                }"
+
               >
+
                 <i data-lucide="mail" class="size-4"></i>
+
                 <span>제휴 문의</span>
+
               </button>
+
+              <button
+
+                data-action="toggle-theme"
+
+                class="transition-colors border rounded-md p-2 ${
+
+                  state.isDarkMode
+
+                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
+
+                    : "bg-white hover:bg-gray-100"
+
+                }"
+
+                aria-label="다크 모드 토글"
+
+              >
+
+                <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
+
+              </button>
+
             </div>
+
           </div>
-          
-          <button
-            data-action="toggle-theme"
-            class="absolute top-1/2 -translate-y-1/2 right-4 transition-colors border rounded-md p-2 ${state.isDarkMode
-                ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400"
-                : "bg-white hover:bg-gray-100"}"
-            aria-label="다크 모드 토글"
-          >
-            <i data-lucide="${state.isDarkMode ? "sun" : "moon"}" class="size-5"></i>
-          </button>
+
         </div>
+
       </div>
+
       <div class="container mx-auto px-4 py-8">
+
         ${loadingBanner}
+
         ${errorBanner}
+
         ${renderSelectedEvent()}
+
         <div class="mb-6">
+
           ${renderCalendar()}
+
         </div>
+
         <div>
+
           ${renderRelatedStocks()}
+
         </div>
+
         ${renderFooter()}
+
       </div>
+
       ${renderContactModal()}
+
     </div>
+
   `;
 
+
+
   bindEvents();
+
   if (typeof lucide !== "undefined") {
+
     lucide.createIcons();
+
   }
+
   if (state.keepSearchFocus) {
+
     const searchInput = document.getElementById("stock-search-input");
+
     if (searchInput && searchInput instanceof HTMLInputElement) {
+
       searchInput.focus();
+
       const length = searchInput.value.length;
+
       searchInput.setSelectionRange(length, length);
+
     }
+
     state.keepSearchFocus = false;
+
   }
+
 }
+
+
 
 function applySearchFilter() {
+
   state.keepSearchFocus = true;
+
   renderApp();
+
 }
+
+
 
 function bindEvents() {
+
   const appRoot = document.getElementById("app");
+
   if (!appRoot) return;
+
   if (appRoot.dataset.bound === "true") {
+
     return;
+
   }
+
   appRoot.dataset.bound = "true";
+
   state.searchQuery = "";
 
+
+
   appRoot.addEventListener("click", (event) => {
+
     const target = event.target;
+
     if (!(target instanceof HTMLElement)) return;
 
+
+
     const eventButton = target.closest("[data-event-id]");
+
     if (eventButton) {
+
       const eventId = eventButton.getAttribute("data-event-id");
+
       const selected = state.events.find((item) => item.id === eventId);
+
       if (selected) {
+
         state.selectedEvent = selected;
+
         renderApp();
+
       }
+
       return;
+
     }
+
+
 
     const actionButton = target.closest("[data-action]");
+
     if (!actionButton) return;
+
     const action = actionButton.getAttribute("data-action");
+
     const tier = actionButton.getAttribute("data-tier");
 
+
+
     if (action === "toggle-theme") {
+
       state.isDarkMode = !state.isDarkMode;
+
       localStorage.setItem("darkMode", String(state.isDarkMode));
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "apply-search") {
+
       applySearchFilter();
+
       return;
+
     }
+
+
 
     if (action === "toggle-tier" && tier) {
+
       state.expandedTiers[tier] = !state.expandedTiers[tier];
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "copy-all" && state.selectedEvent) {
+
       const hasQuery = state.searchQuery.trim().length > 0;
+
       const payload = hasQuery
+
         ? formatAllStocksToTextFiltered(state.selectedEvent)
+
         : formatAllStocksToText(state.selectedEvent);
+
       if (hasQuery && payload.trim().length === 0) {
+
         showToast("검색 결과가 없습니다.", "error");
+
         return;
+
       }
+
       copyToClipboard(payload, "all");
+
       return;
+
     }
+
+
 
     if (action === "copy-tier" && tier && state.selectedEvent) {
+
       const category = state.selectedEvent.relatedStocks.find((cat) => cat.tier === tier);
+
       if (category) {
+
         const hasQuery = state.searchQuery.trim().length > 0;
+
         const filteredStocks = hasQuery ? getFilteredStocks(category) : category.stocks;
+
         if (hasQuery && filteredStocks.length === 0) {
+
           showToast("검색 결과가 없습니다.", "error");
+
           return;
+
         }
+
         if (!hasQuery && filteredStocks.length === 0) {
+
           showToast("복사할 종목이 없습니다.", "error");
+
           return;
+
         }
+
         const payload = hasQuery
+
           ? filteredStocks.map((stock) => `${stock.name}\t${stock.code}\t${stock.sector}`).join("\n")
+
           : formatStocksToText(category);
+
         copyToClipboard(payload, tier);
+
       }
+
       return;
+
     }
+
+
 
     if (action === "open-contact") {
+
       state.isContactModalOpen = true;
+
       renderApp();
+
       return;
+
     }
+
+
 
     if (action === "close-contact") {
+
       state.isContactModalOpen = false;
+
       renderApp();
+
       return;
+
     }
+
   });
+
+
 
   appRoot.addEventListener("submit", async (event) => {
+
     const target = event.target;
+
     if (target instanceof HTMLFormElement && target.id === "contact-form") {
+
       event.preventDefault();
+
       const form = target;
+
       const submitBtn = form.querySelector("button[type=submit]");
+
       const originalBtnText = submitBtn.textContent;
+
       
+
       try {
+
         submitBtn.disabled = true;
+
         submitBtn.textContent = "전송 중...";
+
         
+
         const formData = new FormData(form);
+
         const response = await fetch(form.action, {
+
           method: form.method,
+
           body: formData,
+
           headers: {
+
             'Accept': 'application/json'
+
           }
+
         });
+
         
+
         if (response.ok) {
+
           showToast("문의가 성공적으로 전송되었습니다!", "success");
+
           form.reset();
+
           state.isContactModalOpen = false;
+
           renderApp();
+
         } else {
+
           showToast("전송에 실패했습니다. 다시 시도해주세요.", "error");
+
         }
+
       } catch (error) {
+
         showToast("오류가 발생했습니다.", "error");
+
       } finally {
+
         submitBtn.disabled = false;
+
         submitBtn.textContent = originalBtnText;
+
       }
-    }
-  });
 
-  appRoot.addEventListener("input", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    if (target.id === "stock-search-input") {
-      if (state.isComposing || target.isComposing) {
-        state.searchQuery = target.value;
-        return;
-      }
-      state.searchQuery = target.value;
     }
-  });
 
-  appRoot.addEventListener("compositionstart", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      state.isComposing = true;
-    }
   });
-
-  appRoot.addEventListener("compositionend", (event) => {
-    const target = event.target;
-    if (target instanceof HTMLInputElement && target.id === "stock-search-input") {
-      state.isComposing = false;
-      state.searchQuery = target.value;
-    }
-  });
-
-  appRoot.addEventListener("keydown", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
-    if (target.id === "stock-search-input" && event.key === "Enter") {
-      applySearchFilter();
-    }
-  });
-}
 
 async function copyToClipboard(text, key) {
   try {
