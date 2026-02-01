@@ -815,11 +815,11 @@ function renderStockCategory(category) {
               >
                 <div class="flex items-center gap-2">
                   <div class="${tierColors.text}">
-                    <i data-lucide="${state.copiedStates[category.tier] ? "check-check" : "copy"}" class="size-5"></i>
+                    <i data-lucide="${(state.copiedStates && state.copiedStates[category.tier]) ? "check-check" : "copy"}" class="size-5"></i>
                   </div>
                   <div class="text-left">
                     <h3 class="font-bold ${tierColors.text}">
-                      ${filteredStocks.length === 0 ? "복사할 종목 없음" : state.copiedStates[category.tier] ? "복사 완료" : "복사하기"}
+                      ${filteredStocks.length === 0 ? "복사할 종목 없음" : (state.copiedStates && state.copiedStates[category.tier]) ? "복사 완료" : "복사하기"}
                     </h3>
                   </div>
                 </div>
