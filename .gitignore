@@ -1,0 +1,12 @@
+# Logs
+*.log
+firebase-debug.log
+
+# Backups
+*.bak
+
+# IDX project files
+.idx/
+
+# VSCode settings
+.vscode/
